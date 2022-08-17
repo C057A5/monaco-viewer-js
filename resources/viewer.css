@@ -1,0 +1,89 @@
+@font-face {
+	font-family: "codicon";
+	src: url(codicon.ttf) format("truetype");
+}
+
+body {
+	width: 100vw;
+	height: 100vh;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+body>pre {
+	display: none;
+}
+
+body>iframe {
+	position: fixed;
+	box-sizing: border-box;
+	left: 26px;
+	width: calc(100vw - 22px);
+	height: 100vh;
+	overflow: hidden;
+	border: none;
+	padding-left: 20px;
+	background: #FFF;
+}
+
+body>div {
+	position: fixed;
+	box-sizing: border-box;
+	left: 36px;
+	width: calc(100vw - 22px);
+	height: 100vh;
+	overflow: hidden;
+	border: none;
+	padding-left: 10px;
+	background: #EEE;
+}
+
+nav {
+	position: fixed;
+	box-sizing: border-box;
+	background: hsl(216deg 8% 88%);
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 36px;
+	padding: 0;
+	box-shadow: inset -4px 0 8px -4px #a8a8a8;
+	border-radius: 0;
+	font: 12px 'Iosevka SS05', 'Fira Sans', sans-serif;
+	cursor: default;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+nav>button {
+	background: transparent;
+	border: none;
+	outline: none;
+	padding: 0;
+	box-shadow: none;
+	margin: 5px 0 0 0;
+	width: 100%;
+	height: 19px;
+	cursor: pointer;
+	color: #6a7479;
+	transition-duration: 150ms;
+	position: relative;
+	font: 15px 'codicon';
+}
+
+nav>button>span {
+	display: inline-block;
+	position: relative;
+	top: -3px;
+	left: -4px;
+	font-size: 11px;
+}
+
+nav>button:hover {
+	color: #000000;
+}
+
+nav>hr {
+	margin: 8px 0 0 0;
+}

@@ -1,0 +1,36 @@
+{
+	"name": "Monaco Viewer",
+	"version": "0.0.0.1",
+	"manifest_version": 3,
+	"description": "An extension to view text and data files using Monaco editor.",
+	"icons": {
+		"128": "resources/icon-128.png"
+	},
+	"action": {
+		"default_popup": "popup.html"
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"<all_urls>"
+			],
+			"js": [
+				"scripts/viewer.js"
+			],
+			"run_at": "document_end"
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"viewer.html",
+				"resources/*",
+				"scripts/*",
+				"node_modules/*"
+			],
+			"matches": [
+				"<all_urls>"
+			]
+		}
+	]
+}
