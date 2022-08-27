@@ -6,7 +6,8 @@
 	<title>Monaco Viewer</title>
 	<style>
 		body {
-			background-color: #eee;
+			background-color: hsl(216deg 8% 88%);
+			cursor: default;
 		}
 
 		section {
@@ -62,6 +63,12 @@
 			border-radius: 3px;
 		}
 
+		input:focus, button:focus {
+			outline: none;
+			box-shadow: 0 0 5px 1px #22a6f2;
+		}
+
+
 		input[type=number] {
 			width: 60px;
 		}
@@ -69,12 +76,22 @@
 		input::-webkit-inner-spin-button {
 			margin: -4px -4px -5px 0;
 		}
+
+		input::-webkit-calendar-picker-indicator {
+			position: relative;
+			top: -2px;
+		}
 	</style>
 </head>
 
 <body>
 	<section>
-
+		<datalist id="themes">
+			<option value="vs-light" />
+			<option value="vs-dark" />
+			<option value="hc-light" />
+			<option value="hc-black" />
+		</datalist>
 		<table>
 			<tr>
 				<td><img src="/resources/icon-128.png" alt="Monaco Viewer" /></td>
@@ -82,7 +99,7 @@
 			</tr>
 			<tr>
 				<td>Theme:</td>
-				<td><input type="text" id="theme" /></td>
+				<td><input type="text" id="theme" list="themes" /></td>
 			</tr>
 			<tr>
 				<td>Font family:</td>
