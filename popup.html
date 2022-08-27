@@ -4,12 +4,115 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Monaco Viewer</title>
+	<style>
+		body {
+			background-color: #eee;
+		}
+
+		section {
+			text-align: center;
+			padding: 0 0 10px 0;
+		}
+
+		img {
+			max-width: 64px;
+			max-height: 64px;
+			margin-bottom: 20px;
+		}
+
+		table {
+			border-spacing: 10px;
+		}
+
+		td {
+			height: 25px;
+			padding: 0 10px;
+		}
+
+			td[colspan] {
+				text-align: center;
+			}
+
+		.title {
+			font-size: 14pt;
+			font-weight: bold;
+		}
+
+		td, input, button {
+			white-space: nowrap;
+			font-family: 'Segoe UI', sans-serif;
+			font-weight: normal;
+			font-size: 10pt;
+		}
+
+		button {
+			padding: 5px 20px;
+			border-color: #aaa;
+			border-width: 1px;
+			border-style: solid;
+			border-radius: 3px;
+			background-color: #ddd;
+		}
+
+		input[type=text], input[type=number] {
+			border-color: #ccc;
+			border-width: 1px;
+			border-style: solid;
+			padding: 4px;
+			border-radius: 3px;
+		}
+
+		input[type=number] {
+			width: 60px;
+		}
+
+		input::-webkit-inner-spin-button {
+			margin: -4px -4px -5px 0;
+		}
+	</style>
 </head>
 
 <body>
-	<div>
-		<img src="/resources/icon-300.png" alt="Monaco Viewer" />
-	</div>
+	<section>
+
+		<table>
+			<tr>
+				<td><img src="/resources/icon-128.png" alt="Monaco Viewer" /></td>
+				<td class="title">Monaco Viewer:</td>
+			</tr>
+			<tr>
+				<td>Font family:</td>
+				<td><input type="text" id="fontFamily" /></td>
+			</tr>
+			<tr>
+				<td>Font size:</td>
+				<td><input type="number" id="fontSize" /></td>
+			</tr>
+			<tr>
+				<td>Font weight:</td>
+				<td><input type="number" id="fontWeight" step="100" min="100" max="900" /></td>
+			</tr>
+			<tr>
+				<td>Font ligatures:</td>
+				<td><input type="checkbox" id="fontLigatures" /></td>
+			</tr>
+			<tr>
+				<td>Line numbers:</td>
+				<td><input type="checkbox" id="lineNumbers" /></td>
+			</tr>
+			<tr>
+				<td>Word wrap:</td>
+				<td><input type="checkbox" id="wordWrap" /></td>
+			</tr>
+			<tr>
+				<td colspan="2"><hr /></td>
+			</tr>
+			<tr>
+				<td colspan="2"><button id="save">Save Settings</button></td>
+			</tr>
+		</table>
+	</section>
+	<script src="scripts/popup.js"></script>
 </body>
 
 </html>

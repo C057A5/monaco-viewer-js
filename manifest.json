@@ -3,6 +3,10 @@
 	"version": "0.0.0.1",
 	"manifest_version": 3,
 	"description": "An extension to view text and data files using Monaco editor.",
+	"permissions": [
+		"storage",
+		"tabs"
+	],
 	"icons": {
 		"128": "resources/icon-128.png"
 	},
@@ -24,6 +28,7 @@
 		{
 			"resources": [
 				"viewer.html",
+				"popup.html",
 				"resources/*",
 				"scripts/*",
 				"node_modules/*"
