@@ -12,12 +12,14 @@ function loadSettings() {
 	document.getElementById("save").addEventListener("click", saveSettings, false);
 	chrome.storage.sync.get('settings', function (data) {
 		var settings = data && data.settings ? data.settings : {};
+		if (!settings.theme) settings.theme = 'vs-light';
 		if (!settings.fontFamily) settings.fontFamily = 'Consolas';
 		if (!settings.fontSize) settings.fontSize = 12;
 		if (!settings.fontWeight) settings.fontWeight = '400';
 		if (!settings.fontLigatures) settings.fontLigatures = true;
 		if (!settings.lineNumbers) settings.lineNumbers = true;
 		if (!settings.wordWrap) settings.wordWrap = false;
+		document.getElementById("theme").value = settings.theme;
 		document.getElementById("fontFamily").value = settings.fontFamily;
 		document.getElementById("fontSize").value = settings.fontSize;
 		document.getElementById("fontWeight").value = settings.fontWeight;
@@ -41,6 +43,7 @@ function getSettings() {
 	return {
 		settings:
 		{
+			theme: document.getElementById("theme").value,
 			fontFamily: document.getElementById("fontFamily").value,
 			fontSize: new Number(document.getElementById("fontSize").value).valueOf(),
 			fontWeight: document.getElementById("fontWeight").value,

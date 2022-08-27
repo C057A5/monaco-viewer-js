@@ -25,7 +25,8 @@ async function onmessage(msg) {
 					readOnly: false,
 					scrollBeyondLastLine: false,
 					mouseWheelZoom: true,
-					showFoldingControls: "always"
+					showFoldingControls: "always",
+					theme: msg.data.settings.theme
 				}
 			);
 

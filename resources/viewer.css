@@ -19,24 +19,12 @@ body>iframe {
 	position: fixed;
 	box-sizing: border-box;
 	left: 26px;
-	width: calc(100vw - 22px);
-	height: 100vh;
-	overflow: hidden;
-	border: none;
-	padding-left: 20px;
-	background: #FFF;
-}
-
-body>div {
-	position: fixed;
-	box-sizing: border-box;
-	left: 36px;
-	width: calc(100vw - 22px);
+	width: calc(100vw - 26px);
 	height: 100vh;
 	overflow: hidden;
 	border: none;
 	padding-left: 10px;
-	background: #EEE;
+	background: #FFF;
 }
 
 nav {
