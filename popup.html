@@ -8,17 +8,20 @@
 		body {
 			background-color: hsl(216deg 8% 88%);
 			cursor: default;
+			padding: 0;
+			margin: 0;
 		}
 
 		section {
 			text-align: center;
-			padding: 0 0 10px 0;
+			padding: 0 0 5px 0;
 		}
 
 		img {
 			max-width: 64px;
 			max-height: 64px;
-			margin-bottom: 20px;
+			vertical-align: middle;
+			margin: 10px 20px 10px 0;
 		}
 
 		table {
@@ -34,9 +37,12 @@
 				text-align: center;
 			}
 
-		.title {
+		.hdr {
+			background-color: #00000020;
+			border-radius: 6px;
 			font-size: 14pt;
 			font-weight: bold;
+			margin: 0 -10px 10px -10px;
 		}
 
 		td, input, button {
@@ -52,7 +58,7 @@
 			border-width: 1px;
 			border-style: solid;
 			border-radius: 3px;
-			background-color: #ddd;
+			background-color: #00000020;
 		}
 
 		input[type=text], input[type=number] {
@@ -92,10 +98,26 @@
 			<option value="hc-light" />
 			<option value="hc-black" />
 		</datalist>
+		<datalist id="fonts">
+			<option value="Cascadia Code" />
+			<option value="Consolas" />
+			<option value="Courier New" />
+			<option value="DejaVu Sans Mono" />
+			<option value="Droid Sans Mono" />
+			<option value="Fira Code" />
+			<option value="Iosevka" />
+			<option value="Liberation Mono" />
+			<option value="Menlo" />
+			<option value="Monaco" />
+			<option value="Noto Sans Mono" />
+			<option value="PragmataPro" />
+			<option value="Roboto Mono" />
+			<option value="Source Code Pro" />
+			<option value="Ubuntu Mono" />
+		</datalist>
 		<table>
 			<tr>
-				<td><img src="/resources/icon-128.png" alt="Monaco Viewer" /></td>
-				<td class="title">Monaco Viewer</td>
+				<td colspan="2"><div class="hdr"><img src="/resources/icon-128.png" alt="Monaco Viewer" /><span>Monaco Viewer</span></div></td>
 			</tr>
 			<tr>
 				<td>Theme:</td>
@@ -103,7 +125,7 @@
 			</tr>
 			<tr>
 				<td>Font family:</td>
-				<td><input type="text" id="fontFamily" /></td>
+				<td><input type="text" id="fontFamily" list="fonts" /></td>
 			</tr>
 			<tr>
 				<td>Font size:</td>
