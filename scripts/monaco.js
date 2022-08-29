@@ -19,7 +19,7 @@ async function onmessage(msg) {
 					fontFamily: msg.data.settings.fontFamily,
 					fontSize: msg.data.settings.fontSize,
 					fontWeight: msg.data.settings.fontWeight,
-					fontLigatures: msg.data.settings.fontLigatures,
+					fontLigatures: /^\s*(true)?\s*$/ig.test(msg.data.settings.fontLigatures) ? true : msg.data.settings.fontLigatures,
 					lineNumbers: msg.data.settings.lineNumbers,
 					wordWrap: msg.data.settings.wordWrap,
 					readOnly: false,

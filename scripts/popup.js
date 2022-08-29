@@ -23,7 +23,7 @@ function loadSettings() {
 		document.getElementById("fontFamily").value = settings.fontFamily;
 		document.getElementById("fontSize").value = settings.fontSize;
 		document.getElementById("fontWeight").value = settings.fontWeight;
-		document.getElementById("fontLigatures").checked = settings.fontLigatures;
+		document.getElementById("fontLigatures").value = settings.fontLigatures;
 		document.getElementById("lineNumbers").checked = settings.lineNumbers;
 		document.getElementById("wordWrap").checked = settings.wordWrap;
 		chrome.storage.sync.set({ settings: settings });
@@ -45,9 +45,9 @@ function getSettings() {
 		{
 			theme: document.getElementById("theme").value,
 			fontFamily: document.getElementById("fontFamily").value,
+			fontLigatures: document.getElementById("fontLigatures").value,
 			fontSize: new Number(document.getElementById("fontSize").value).valueOf(),
 			fontWeight: document.getElementById("fontWeight").value,
-			fontLigatures: document.getElementById("fontLigatures").checked,
 			lineNumbers: document.getElementById("lineNumbers").checked,
 			wordWrap: document.getElementById("wordWrap").checked,
 		}
