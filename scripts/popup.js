@@ -3,7 +3,6 @@ window.addEventListener("load", loadSettings, false);
 window.addEventListener("blur", saveSettings, false);
 
 function onmessage(msg) {
-	console.log({ popup_js: msg });
 	var settings = getSettings();
 	window.parent.postMessage(settings, "*");
 }
@@ -32,7 +31,6 @@ function loadSettings() {
 
 function saveSettings() {
 	var settings = getSettings();
-	console.log(settings);
 	chrome.storage.sync.set(settings);
 	chrome.tabs.query(
 		{ discarded: false, status: 'complete' },

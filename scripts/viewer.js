@@ -1,7 +1,6 @@
 var $monacoViewer;
 
 chrome.runtime.onMessage.addListener((m, s, r) => {
-	console.log({ sender: s, message: m, response: r });
 	if (s && s.id === chrome.runtime.id && $monacoViewer) {
 		if (m.settings)
 			$monacoViewer.postMessage({ update: m.settings }, "*");
@@ -52,7 +51,6 @@ if (document.querySelector("body>pre")) {
 		document.body.appendChild(tlb);
 
 		window.addEventListener("message", msg => {
-			console.log({ viewer_js: msg });
 			if (msg && msg.data && msg.data.ready) {
 				$monacoViewer.postMessage({
 					text: document.querySelector("body>pre").innerText,

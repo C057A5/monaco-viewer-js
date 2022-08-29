@@ -11,7 +11,6 @@ async function onmessage(msg) {
 	if (msg && msg.data) {
 
 		if (msg.data.settings) {
-			//TO console.log(msg);
 			monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
 				comments: 'ignore',
 				trailingCommas: 'error'
