@@ -13,10 +13,10 @@ function loadSettings() {
 	chrome.storage.sync.get('settings', function (data) {
 		var settings = data && data.settings ? data.settings : {};
 		if (!settings.theme) settings.theme = '';
-		if (!settings.fontFamily) settings.fontFamily = 'Consolas';
+		if (!settings.fontFamily) settings.fontFamily = 'monospace';
 		if (!settings.fontSize) settings.fontSize = 12;
 		if (!settings.fontWeight) settings.fontWeight = '400';
-		if (!settings.fontLigatures) settings.fontLigatures = true;
+		if (!settings.fontLigatures) settings.fontLigatures = '';
 		if (!settings.lineNumbers) settings.lineNumbers = true;
 		if (!settings.wordWrap) settings.wordWrap = false;
 		document.getElementById("theme").value = settings.theme;

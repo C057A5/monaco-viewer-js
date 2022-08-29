@@ -3,7 +3,7 @@ var instance;
 window.addEventListener("message", onmessage, false);
 require.config({ paths: { vs: 'node_modules/monaco-editor/min/vs' } });
 require(['vs/editor/editor.main'], function () {
-	window.frames[0].postMessage({} , "*");
+	window.frames[0].postMessage({}, "*");
 });
 
 
@@ -11,7 +11,11 @@ async function onmessage(msg) {
 	if (msg && msg.data) {
 
 		if (msg.data.settings) {
-			console.log(msg);
+			//TO console.log(msg);
+			monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+				comments: 'ignore',
+				trailingCommas: 'error'
+			});
 			instance = monaco.editor.create(
 				document.querySelector("main"),
 				{
