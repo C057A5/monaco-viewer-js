@@ -40,10 +40,10 @@ if (document.querySelector("body>pre")) {
 		createButton(tlb, "<span>5</span>", "Fold level 5 (Ctrl+K, Ctrl+5)", ["editor.unfoldRecursively", "editor.foldLevel5"]);
 		createButton(tlb, "<span>6</span>", "Fold level 6 (Ctrl+K, Ctrl+6)", ["editor.unfoldRecursively", "editor.foldLevel6"]);
 		createButton(tlb, "<span>7</span>", "Fold level 7 (Ctrl+K, Ctrl+7)", ["editor.unfoldRecursively", "editor.foldLevel7"]);
-		// createButton(tlb, "", "Fold block comments (Ctrl+K, Ctrl+9)", ["editor.unfoldAllRegions", "editor.foldLevel7"]);
-		// createButton(tlb);
-		// createButton(tlb, "", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
-		// createButton(tlb, "", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
+		createButton(tlb, "", "Fold block comments (Ctrl+K, Ctrl+9)", ["editor.unfoldAllRegions", "editor.foldLevel7"]);
+		createButton(tlb);
+		createButton(tlb, "", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
+		createButton(tlb, "", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
 		createButton(tlb);
 		createButton(tlb, "", "Join lines (Ctrl+J)", ["editor.action.joinLines"]);
 		createButton(tlb, "", "Sort lines ascending", ["editor.action.sortLinesAscending"]);
