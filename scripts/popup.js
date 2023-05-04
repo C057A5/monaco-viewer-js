@@ -17,14 +17,14 @@ function loadSettings() {
 		if (!settings.fontWeight) settings.fontWeight = '400';
 		if (!settings.fontLigatures) settings.fontLigatures = '';
 		if (!settings.lineNumbers) settings.lineNumbers = true;
-		if (!settings.wordWrap) settings.wordWrap = false;
+		if (!settings.foldingMaximumRegions) settings.foldingMaximumRegions = 10000;
 		document.getElementById("theme").value = settings.theme;
 		document.getElementById("fontFamily").value = settings.fontFamily;
 		document.getElementById("fontSize").value = settings.fontSize;
 		document.getElementById("fontWeight").value = settings.fontWeight;
 		document.getElementById("fontLigatures").value = settings.fontLigatures;
 		document.getElementById("lineNumbers").checked = settings.lineNumbers;
-		document.getElementById("wordWrap").checked = settings.wordWrap;
+		document.getElementById("foldingMaximumRegions").value = settings.foldingMaximumRegions;
 		chrome.storage.sync.set({ settings: settings });
 	});
 }
@@ -47,7 +47,7 @@ function getSettings() {
 			fontSize: new Number(document.getElementById("fontSize").value).valueOf(),
 			fontWeight: document.getElementById("fontWeight").value,
 			lineNumbers: document.getElementById("lineNumbers").checked,
-			wordWrap: document.getElementById("wordWrap").checked,
+			foldingMaximumRegions: document.getElementById("foldingMaximumRegions").value,
 		}
 	};
 }

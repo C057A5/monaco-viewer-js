@@ -20,19 +20,18 @@ async function onmessage(msg) {
 				document.querySelector("main"),
 				{
 					automaticLayout: true,
-					foldingMaximumRegions: 20000,
+					foldingMaximumRegions: msg.data.settings.foldingMaximumRegions,
 					fontFamily: msg.data.settings.fontFamily,
 					fontSize: msg.data.settings.fontSize,
 					fontWeight: msg.data.settings.fontWeight,
 					fontLigatures: /^\s*(true)?\s*$/ig.test(msg.data.settings.fontLigatures) ? true : msg.data.settings.fontLigatures,
 					lineNumbers: msg.data.settings.lineNumbers,
-					wordWrap: msg.data.settings.wordWrap,
+					wordWrap: "off",
 					readOnly: false,
 					scrollBeyondLastLine: false,
 					mouseWheelZoom: true,
 					showFoldingControls: "always",
 					theme: msg.data.settings.theme,
-					//value: msg.data.text,
 				}
 			);
 
@@ -49,12 +48,17 @@ async function onmessage(msg) {
 			);
 
 			instance.addCommand(
+				monaco.KeyMod.Alt | monaco.KeyCode.KeyZ,
+				() => instance.updateOptions({wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on"})
+			);
+
+			instance.addCommand(
 				monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS),
 				() => instance.getAction('editor.action.selectToBracket').run()
 			);
 
 			instance.addCommand(
-				monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon),
+				monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon,
 				() => {
 					var sel = instance.getSelection();
 					var cnt = instance.getModel().getValueInRange(sel);
