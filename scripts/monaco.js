@@ -1,5 +1,5 @@
 var instance;
-var init = false;
+var formatOnLoad = true;
 
 window.addEventListener("message", onmessage, false);
 require.config({ paths: { vs: 'node_modules/monaco-editor/min/vs' } });
@@ -11,6 +11,8 @@ require(['vs/editor/editor.main'], function () {
 async function onmessage(msg) {
 	if (msg && msg.data) {
 		if (msg.data.settings) {
+
+			formatOnLoad = msg.data.settings.formatOnLoad;
 
 			monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
 				comments: 'ignore',
@@ -27,7 +29,7 @@ async function onmessage(msg) {
 					fontLigatures: /^\s*(true)?\s*$/ig.test(msg.data.settings.fontLigatures) ? true : msg.data.settings.fontLigatures,
 					lineNumbers: msg.data.settings.lineNumbers,
 					wordWrap: "off",
-					readOnly: false,
+					readOnly: msg.data.settings.readOnly,
 					scrollBeyondLastLine: false,
 					mouseWheelZoom: true,
 					showFoldingControls: "always",
@@ -37,7 +39,8 @@ async function onmessage(msg) {
 
 			window.addEventListener("resize", () => instance.layout(), false);
 
-			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, () => instance.getAction('editor.action.joinLines').run());
+			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
+			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
 			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
 			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
 			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
@@ -56,19 +59,9 @@ async function onmessage(msg) {
 				languages.find(l => l.extensions.includes(msg.data.extension)) ||
 				undefined;
 			var model = instance.getModel();
-			model.onDidChangeContent(() => {
-				if (!init)
-					setTimeout(function () {
-						instance.focus();
-						instance.getAction('editor.action.formatDocument').run();
-						instance.getAction('editor.foldRecursively').run();
-						instance.getAction('editor.unfold').run();
-						instance.focus();
-						init = true;
-					}, 100);
-			});
 			monaco.editor.setModelLanguage(model, lang?.id);
-			model.setValue(msg.data.text);
+			model.setValue(msg.data.text)
+			if (formatOnLoad) setTimeout(initDoc, 100);
 		}
 
 		if (instance) {
@@ -83,21 +76,52 @@ async function onmessage(msg) {
 	}
 }
 
+function initDoc() {
+	instance.focus();
+	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
+	instance.updateOptions({ readOnly: false });
+	instance.getAction('editor.action.formatDocument').run()
+		.then(() => {
+			instance.updateOptions({ readOnly: rom });
+			instance.getAction('editor.foldRecursively').run().then(() => instance.getAction('editor.unfold').run());
+		});
+}
+
 function $toggleWrap() {
-	instance?.updateOptions({ wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on" });
+	instance.updateOptions({ wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on" });
 }
 
 function $unescape() {
+	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
+	instance.updateOptions({ readOnly: false });
 	var sel = instance.getSelection();
 	var cnt = instance.getModel().getValueInRange(sel);
 	var esc = JSON.parse(cnt);
 	instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
+	instance.updateOptions({ readOnly: rom });
 }
 
 function $escape() {
+	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
+	instance.updateOptions({ readOnly: false });
 	var sel = instance.getSelection();
 	var cnt = instance.getModel().getValueInRange(sel);
 	var esc = JSON.parse(cnt);
 	instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: JSON.stringify(JSON.stringify(esc)), forceMoveMarkers: true }]);
+	instance.updateOptions({ readOnly: rom });
+}
+
+function $joinLines() {
+	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
+	instance.updateOptions({ readOnly: false });
+	instance.getAction('editor.action.joinLines').run()
+		.then(() => instance.updateOptions({ readOnly: rom }));
+}
+
+function $formatDocument() {
+	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
+	instance.updateOptions({ readOnly: false });
+	instance.getAction('editor.action.formatDocument').run()
+		.then(() => instance.updateOptions({ readOnly: rom }));
 }
 
