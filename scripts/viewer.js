@@ -26,28 +26,29 @@ if (document.querySelector("body>pre")) {
 		$monacoViewer = frame.contentWindow;
 
 		var tlb = document.createElement("nav");
-		createButton(tlb, "", "Format document (Alt+Shift+F)", ["editor.action.formatDocument"]);
-		createButton(tlb, "", "Fold all (Ctrl+K, Ctrl+0)", ["editor.foldAll"]);
-		createButton(tlb, "", "Fold recursively (Ctrl+K, Ctrl+[)", ["editor.foldRecursively"]);
-		createButton(tlb, "", "Fold (Ctrl+Shift+[)", ["editor.fold"]);
-		createButton(tlb, "", "Unfold (Ctrl+K,Ctrl+])", ["editor.foldRecursively", "editor.unfold"]);
-		createButton(tlb, "", "Unfold recursively (Ctrl+K, Ctrl+])", ["editor.unfoldRecursively"]);
-		createButton(tlb, "", "Unfold all (Ctrl+K, Ctrl+J)", ["editor.unfoldAll"]);
+		createButton(tlb, "&#xEA8B;", "Format document (Alt+Shift+F)", ["editor.action.formatDocument"]);
+		createButton(tlb, "&#xEAF4;", "Fold all (Ctrl+K, Ctrl+0)", ["editor.foldAll"]);
+		createButton(tlb, "&#xEAB7;", "Fold recursively (Ctrl+K, Ctrl+[)", ["editor.foldRecursively"]);
+		createButton(tlb, "&#xEAB5;", "Fold (Ctrl+Shift+[)", ["editor.fold"]);
+		createButton(tlb, "&#xEAB6;", "Unfold (Ctrl+K,Ctrl+])", ["editor.foldRecursively", "editor.unfold"]);
+		createButton(tlb, "&#xEAB4;", "Unfold recursively (Ctrl+K, Ctrl+])", ["editor.unfoldRecursively"]);
+		createButton(tlb, "&#xEAF3;", "Unfold all (Ctrl+K, Ctrl+J)", ["editor.unfoldAll"]);
 		createButton(tlb);
-		createButton(tlb, "<span>2</span>", "Fold level 2 (Ctrl+K, Ctrl+2)", ["editor.unfoldRecursively", "editor.foldLevel2"]);
-		createButton(tlb, "<span>3</span>", "Fold level 3 (Ctrl+K, Ctrl+3)", ["editor.unfoldRecursively", "editor.foldLevel3"]);
-		createButton(tlb, "<span>4</span>", "Fold level 4 (Ctrl+K, Ctrl+4)", ["editor.unfoldRecursively", "editor.foldLevel4"]);
-		createButton(tlb, "<span>5</span>", "Fold level 5 (Ctrl+K, Ctrl+5)", ["editor.unfoldRecursively", "editor.foldLevel5"]);
-		createButton(tlb, "<span>6</span>", "Fold level 6 (Ctrl+K, Ctrl+6)", ["editor.unfoldRecursively", "editor.foldLevel6"]);
-		createButton(tlb, "<span>7</span>", "Fold level 7 (Ctrl+K, Ctrl+7)", ["editor.unfoldRecursively", "editor.foldLevel7"]);
-		createButton(tlb, "", "Fold block comments (Ctrl+K, Ctrl+9)", ["editor.unfoldAllRegions", "editor.foldLevel7"]);
+		createButton(tlb, "&#xEAB5<span>2</span>", "Fold level 2 (Ctrl+K, Ctrl+2)", ["editor.unfoldRecursively", "editor.foldLevel2"]);
+		createButton(tlb, "&#xEAB5<span>3</span>", "Fold level 3 (Ctrl+K, Ctrl+3)", ["editor.unfoldRecursively", "editor.foldLevel3"]);
+		createButton(tlb, "&#xEAB5<span>4</span>", "Fold level 4 (Ctrl+K, Ctrl+4)", ["editor.unfoldRecursively", "editor.foldLevel4"]);
+		createButton(tlb, "&#xEAB5<span>5</span>", "Fold level 5 (Ctrl+K, Ctrl+5)", ["editor.unfoldRecursively", "editor.foldLevel5"]);
+		createButton(tlb, "&#xEAB5<span>6</span>", "Fold level 6 (Ctrl+K, Ctrl+6)", ["editor.unfoldRecursively", "editor.foldLevel6"]);
+		createButton(tlb, "&#xEAB5<span>7</span>", "Fold level 7 (Ctrl+K, Ctrl+7)", ["editor.unfoldRecursively", "editor.foldLevel7"]);
+		createButton(tlb, "&#xEAE9;", "Fold block comments (Ctrl+K, Ctrl+9)", ["editor.unfoldAllRegions", "editor.foldLevel7"]);
 		createButton(tlb);
-		createButton(tlb, "", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
-		createButton(tlb, "", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
+		createButton(tlb, "&#xEA92;", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
+		createButton(tlb, "&#xEBCB;", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
 		createButton(tlb);
-		createButton(tlb, "", "Join lines (Ctrl+J)", ["editor.action.joinLines"]);
-		createButton(tlb, "", "Sort lines ascending", ["editor.action.sortLinesAscending"]);
-		createButton(tlb, "", "Sort lines descending", ["editor.action.sortLinesDescending"]);
+		createButton(tlb, "&#xEAF5;", "Join lines (Ctrl+J)", ["editor.action.joinLines"]);
+		createButton(tlb, "&#xEAA1;", "Sort lines ascending", ["editor.action.sortLinesAscending"]);
+		createButton(tlb, "&#xEA9A;", "Sort lines descending", ["editor.action.sortLinesDescending"]);
+		createButton(tlb, "&#xEB80;", "Toggle wrap (Alt+Z)", ["$toggleWrap"]);
 		document.body.appendChild(tlb);
 
 		window.addEventListener("message", msg => {
@@ -63,13 +64,13 @@ if (document.querySelector("body>pre")) {
 	}
 }
 
-function createButton(tlb, label, title, actions, options) {
+function createButton(tlb, label, title, actions) {
 	if (label) {
 		const button = document.createElement("button");
 		button.innerHTML = label;
 		button.title = title;
 		button.onclick = function (ev) {
-			$monacoViewer.postMessage({ actions: actions, options: options }, "*");
+			$monacoViewer.postMessage({ actions: actions }, "*");
 			$monacoViewer.focus();
 		};
 		tlb.appendChild(button);

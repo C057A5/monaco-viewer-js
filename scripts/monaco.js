@@ -37,52 +37,17 @@ async function onmessage(msg) {
 
 			window.addEventListener("resize", () => instance.layout(), false);
 
-			instance.addCommand(
-				monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, 
-				() => instance.getAction('editor.action.joinLines').run()
-			);
-
-			instance.addCommand(
-				monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, 
-				() => instance.getAction('actions.find').run()
-			);
-
-			instance.addCommand(
-				monaco.KeyMod.Alt | monaco.KeyCode.KeyZ,
-				() => instance.updateOptions({wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on"})
-			);
-
-			instance.addCommand(
-				monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS),
-				() => instance.getAction('editor.action.selectToBracket').run()
-			);
-
-			instance.addCommand(
-				monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon,
-				() => {
-					var sel = instance.getSelection();
-					var cnt = instance.getModel().getValueInRange(sel);
-					var esc = JSON.parse(cnt);
-					instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
-				}
-			);
-
-			instance.addCommand(
-				monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote),
-				() => {
-					var sel = instance.getSelection();
-					var cnt = instance.getModel().getValueInRange(sel);
-					var esc = JSON.parse(cnt);
-					instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: JSON.stringify(JSON.stringify(esc)), forceMoveMarkers: true }]);
-				}
-			);
+			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, () => instance.getAction('editor.action.joinLines').run());
+			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
+			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
+			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
+			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescape);
+			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escape);
 
 			window.parent.postMessage({ ready: true }, "*");
 		}
 
-		if (msg.data.update && instance) {
-			instance.updateOptions(msg.data.update);
-		}
+		if (msg.data.update && instance) instance.updateOptions(msg.data.update);
 
 		if (instance && msg.data.text) {
 			var languages = monaco.languages.getLanguages();
@@ -93,14 +58,14 @@ async function onmessage(msg) {
 			var model = instance.getModel();
 			model.onDidChangeContent(() => {
 				if (!init)
-					setTimeout(async function () {
-						await instance.focus();
-						await instance.getAction('editor.action.formatDocument').run();
-						await instance.getAction('editor.foldRecursively').run();
-						await instance.getAction('editor.unfold').run();
-						await instance.focus();
+					setTimeout(function () {
+						instance.focus();
+						instance.getAction('editor.action.formatDocument').run();
+						instance.getAction('editor.foldRecursively').run();
+						instance.getAction('editor.unfold').run();
+						instance.focus();
 						init = true;
-						}, 100);
+					}, 100);
 			});
 			monaco.editor.setModelLanguage(model, lang?.id);
 			model.setValue(msg.data.text);
@@ -108,10 +73,31 @@ async function onmessage(msg) {
 
 		if (instance) {
 			instance.focus();
-			msg.data.actions?.forEach(a => instance.getAction(a)?.run());
-			if (msg.data.options)
-				instance.updateOptions(msg.data.options);
+			msg.data.actions?.forEach(a => {
+				if (a.substring(0, 1) != "$")
+					instance.getAction(a)?.run();
+				else
+					window[a]();
+			});
 		}
 	}
+}
+
+function $toggleWrap() {
+	instance?.updateOptions({ wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on" });
+}
+
+function $unescape() {
+	var sel = instance.getSelection();
+	var cnt = instance.getModel().getValueInRange(sel);
+	var esc = JSON.parse(cnt);
+	instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
+}
+
+function $escape() {
+	var sel = instance.getSelection();
+	var cnt = instance.getModel().getValueInRange(sel);
+	var esc = JSON.parse(cnt);
+	instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: JSON.stringify(JSON.stringify(esc)), forceMoveMarkers: true }]);
 }
 
