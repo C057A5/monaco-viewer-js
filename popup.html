@@ -21,7 +21,7 @@
 			max-width: 64px;
 			max-height: 64px;
 			vertical-align: middle;
-			margin: 10px 20px 10px 0;
+			margin: 10px 20px 10px -60px;
 		}
 
 		table {
@@ -29,7 +29,7 @@
 		}
 
 		td {
-			height: 25px;
+			height: 21px;
 			padding: 0 10px;
 		}
 
@@ -43,6 +43,7 @@
 			font-size: 14pt;
 			font-weight: bold;
 			margin: 0 -10px 10px -10px;
+			position: relative;
 		}
 
 		td, input, button {
@@ -65,7 +66,7 @@
 			border-color: #ccc;
 			border-width: 1px;
 			border-style: solid;
-			padding: 4px;
+			padding: 2px 4px;
 			border-radius: 3px;
 		}
 
@@ -80,12 +81,19 @@
 		}
 
 		input::-webkit-inner-spin-button {
-			margin: -4px -4px -5px 0;
+			margin: -1px -2px -2px 8px;
 		}
 
 		input::-webkit-calendar-picker-indicator {
 			position: relative;
 			top: -2px;
+		}
+		a.home {
+			position: absolute;
+			bottom: 10px;
+			right: 15px;
+			font-size: 16px;
+			font-weight: normal;
 		}
 	</style>
 </head>
@@ -117,7 +125,13 @@
 		</datalist>
 		<table>
 			<tr>
-				<td colspan="2"><div class="hdr"><img src="/resources/icon-128.png" alt="Monaco Viewer" /><span>Monaco Viewer</span></div></td>
+				<td colspan="2">
+					<div class="hdr">
+						<img src="/resources/icon-128.png" alt="Monaco Viewer" />
+						<span>Monaco Viewer</span>
+						<a href="https://github.com/C057A5/monaco-viewer-js" class="home" target="_blank">🏠</a>
+					</div>
+				</td>
 			</tr>
 			<tr>
 				<td>Theme:</td>

@@ -18,7 +18,7 @@ async function onmessage(msg) {
 				comments: 'ignore',
 				trailingCommas: 'error'
 			});
-			instance = monaco.editor.create(
+			await instance = monaco.editor.create(
 				document.querySelector("main"),
 				{
 					automaticLayout: true,
@@ -41,11 +41,12 @@ async function onmessage(msg) {
 
 			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
 			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
+			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyJ, $joinSelection);
 			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
 			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
 			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
-			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescape);
-			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escape);
+			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescapeSelection);
+			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escapeSelection);
 
 			window.parent.postMessage({ ready: true }, "*");
 		}
@@ -65,63 +66,104 @@ async function onmessage(msg) {
 		}
 
 		if (instance) {
-			instance.focus();
-			msg.data.actions?.forEach(a => {
-				if (a.substring(0, 1) != "$")
-					instance.getAction(a)?.run();
+			await instance.focus();
+			msg.data.actions?.forEach(async a => {
+				var fun = a.replace(/^([^\(]+)(\((.*)\))?$/, '$1');
+				var arg = a.replace(/^([^\(]+)\((.*)\)$/, '$2');
+				if (fun.substring(0, 1) != "$")
+					await instance.getAction(fun)?.run();
 				else
-					window[a]();
+					await window[fun](arg ? JSON.parse(arg) : undefined);
 			});
 		}
 	}
 }
 
-function initDoc() {
-	instance.focus();
-	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
-	instance.updateOptions({ readOnly: false });
-	instance.getAction('editor.action.formatDocument').run()
-		.then(() => {
-			instance.updateOptions({ readOnly: rom });
-			instance.getAction('editor.foldRecursively').run().then(() => instance.getAction('editor.unfold').run());
-		});
+async function initDoc() {
+	await instance.focus();
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.updateOptions({ readOnly: false });
+	await instance.getAction('editor.action.formatDocument').run();
+	await instance.updateOptions({ readOnly: rom });
+	await instance.getAction('editor.foldRecursively').run();
+	await instance.getAction('editor.unfold').run();
+	await instance.focus();
 }
 
-function $toggleWrap() {
-	instance.updateOptions({ wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on" });
+async function $toggleWrap() {
+	await instance.updateOptions({ wordWrap: instance.getOption(monaco.editor.EditorOption.wordWrap) === "on" ? "off" : "on" });
 }
 
-function $unescape() {
-	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
-	instance.updateOptions({ readOnly: false });
-	var sel = instance.getSelection();
-	var cnt = instance.getModel().getValueInRange(sel);
-	var esc = JSON.parse(cnt);
-	instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
-	instance.updateOptions({ readOnly: rom });
+async function $unescapeSelection() {
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.updateOptions({ readOnly: false });
+	var sel = await instance.getSelection();
+	var cnt = await instance.getModel().getValueInRange(sel);
+	if (!cnt) {
+		var ss = await instance.getModel().findPreviousMatch(/(?<!\\)"/, sel.getStartPosition(), true)?.range;
+		var es = await instance.getModel().findNextMatch(/(?<!\\)"/, sel.getStartPosition(), true)?.range;
+		if (ss && es) {
+			ss.endLineNumber = es.endLineNumber;
+			ss.endColumn = es.endColumn;
+			cnt = await instance.getModel().getValueInRange(ss);
+			await instance.setSelection(ss);
+		}
+	}
+	if (cnt) {
+		var esc = JSON.parse(cnt);
+		var sel = await instance.getSelection();
+		await instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
+		await instance.getAction('editor.action.selectToBracket').run();
+		await instance.getAction('editor.action.formatSelection').run();
+		await instance.updateOptions({ readOnly: rom });
+		await instance.getAction('editor.action.jumpToBracket').run();
+		await instance.getAction('editor.action.jumpToBracket').run();
+	}
 }
 
-function $escape() {
-	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
-	instance.updateOptions({ readOnly: false });
-	var sel = instance.getSelection();
-	var cnt = instance.getModel().getValueInRange(sel);
-	var esc = JSON.parse(cnt);
-	instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: JSON.stringify(JSON.stringify(esc)), forceMoveMarkers: true }]);
-	instance.updateOptions({ readOnly: rom });
+async function $escapeSelection() {
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.updateOptions({ readOnly: false });
+	var sel = await instance.getSelection();
+	var cnt = await instance.getModel().getValueInRange(sel);
+	var esc = '"' + JSON.stringify(cnt).replace(/^"|"$/, "") + '"';
+	await instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
+	await instance.updateOptions({ readOnly: rom });
 }
 
-function $joinLines() {
-	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
-	instance.updateOptions({ readOnly: false });
-	instance.getAction('editor.action.joinLines').run()
-		.then(() => instance.updateOptions({ readOnly: rom }));
+async function $joinLines() {
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.updateOptions({ readOnly: false });
+	await instance.getAction('editor.action.joinLines').run();
+	await instance.updateOptions({ readOnly: rom });
 }
 
-function $formatDocument() {
-	var rom = instance.getOption(monaco.editor.EditorOption.readOnly);
-	instance.updateOptions({ readOnly: false });
-	instance.getAction('editor.action.formatDocument').run()
-		.then(() => instance.updateOptions({ readOnly: rom }));
+async function $joinSelection() {
+	await instance.getAction('editor.action.selectToBracket').run();
+	await $joinLines();
+}
+
+async function $formatDocument() {
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.updateOptions({ readOnly: false });
+	await instance.getAction('editor.action.formatDocument').run();
+	await instance.updateOptions({ readOnly: rom });
+}
+
+async function $goToTop() {
+	await instance.setPosition({column: 0, lineNumber: 0});
+	await instance.getAction('editor.foldRecursively').run();
+}
+
+async function $unfold(l) {
+	await $goToTop();
+	await instance.getAction('editor.unfoldRecursively').run();
+	await instance.getAction(`editor.foldLevel${l}`).run();
+}
+
+async function $foldOtherLevels() {
+	var pos = await instance.getPosition();
+	await $goToTop();
+	await instance.setPosition(pos);
 }
 
