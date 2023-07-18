@@ -18,7 +18,7 @@ async function onmessage(msg) {
 				comments: 'ignore',
 				trailingCommas: 'error'
 			});
-			await instance = monaco.editor.create(
+			instance = await monaco.editor.create(
 				document.querySelector("main"),
 				{
 					automaticLayout: true,
@@ -83,6 +83,7 @@ async function initDoc() {
 	await instance.focus();
 	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
 	await instance.updateOptions({ readOnly: false });
+	await instance.getAction('editor.unfoldRecursively').run();
 	await instance.getAction('editor.action.formatDocument').run();
 	await instance.updateOptions({ readOnly: rom });
 	await instance.getAction('editor.foldRecursively').run();
