@@ -17,3 +17,4 @@ and other file/content types, replacing the default plain viewer.
 - At the browser's extensions page ([edge://extensions/](edge://extensions/) or [chrome://extensions/](chrome://extensions/)):
     - check '**Developer mode**
     - click on '**Load unpacked**' and point to the folder of the locally cloned repo.
+

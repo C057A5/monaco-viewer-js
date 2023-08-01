@@ -42,6 +42,7 @@ async function onmessage(msg) {
 			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
 			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
 			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyJ, $joinSelection);
+			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, $formatSelection);
 			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
 			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
 			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
@@ -148,6 +149,15 @@ async function $formatDocument() {
 	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
 	await instance.updateOptions({ readOnly: false });
 	await instance.getAction('editor.action.formatDocument').run();
+	await instance.updateOptions({ readOnly: rom });
+}
+
+async function $formatSelection() {
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.updateOptions({ readOnly: false });
+	await instance.getAction('editor.action.formatSelection').run();
+	await instance.getAction('editor.foldRecursively').run();
+	await instance.getAction('editor.unfold').run();
 	await instance.updateOptions({ readOnly: rom });
 }
 
