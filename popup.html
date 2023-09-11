@@ -10,6 +10,7 @@
 			cursor: default;
 			padding: 0;
 			margin: 0;
+			width: 500px;
 		}
 
 		section {
@@ -26,11 +27,13 @@
 
 		table {
 			border-spacing: 10px;
+			width: 100%;
 		}
 
 		td {
 			height: 21px;
 			padding: 0 10px;
+			vertical-align: top;
 		}
 
 			td[colspan] {
@@ -53,6 +56,10 @@
 			font-size: 10pt;
 		}
 
+			td.label {
+				padding-top: 3px;
+			}
+
 		button {
 			padding: 5px 20px;
 			border-color: #aaa;
@@ -60,6 +67,10 @@
 			border-style: solid;
 			border-radius: 3px;
 			background-color: #00000020;
+		}
+
+		input[type=text] {
+			width: 100%;
 		}
 
 		input[type=text], input[type=number] {
@@ -70,14 +81,14 @@
 			border-radius: 3px;
 		}
 
-		input:focus, button:focus {
+		input:focus, button:focus, #contentTypes:focus {
 			outline: none;
 			box-shadow: 0 0 5px 1px #22a6f2;
 		}
 
 
 		input[type=number] {
-			width: 60px;
+			width: 80px;
 		}
 
 		input::-webkit-inner-spin-button {
@@ -88,6 +99,7 @@
 			position: relative;
 			top: -2px;
 		}
+
 		a.home {
 			position: absolute;
 			bottom: 10px;
@@ -95,6 +107,21 @@
 			font-size: 16px;
 			font-weight: normal;
 		}
+
+		#contentTypes {
+			background: #fff;
+			border-color: #ccc;
+			border-width: 1px;
+			border-style: solid;
+			padding: 2px 4px;
+			border-radius: 3px;
+			max-height: 4em;
+			outline: none;
+			cursor: text;
+			overflow: auto;
+			min-width: 260px;
+		}
+
 	</style>
 </head>
 
@@ -134,40 +161,44 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Theme:</td>
+				<td class="label">Theme:</td>
 				<td><input type="text" id="theme" list="themes" /></td>
 			</tr>
 			<tr>
-				<td>Font family:</td>
+				<td class="label">Font family:</td>
 				<td><input type="text" id="fontFamily" list="fonts" /></td>
 			</tr>
 			<tr>
-				<td>Font ligatures:</td>
+				<td class="label">Font ligatures:</td>
 				<td><input type="text" id="fontLigatures" /></td>
 			</tr>
 			<tr>
-				<td>Font size:</td>
+				<td class="label">Font size:</td>
 				<td><input type="number" id="fontSize" /></td>
 			</tr>
 			<tr>
-				<td>Font weight:</td>
+				<td class="label">Font weight:</td>
 				<td><input type="number" id="fontWeight" step="100" min="100" max="900" /></td>
 			</tr>
 			<tr>
-				<td>Folding Maximum Regions:</td>
+				<td class="label">Folding maximum regions:</td>
 				<td><input type="number" id="foldingMaximumRegions" step="1000" min="1000" max="50000" /></td>
 			</tr>
 			<tr>
-				<td>Line numbers:</td>
+				<td class="label">Line numbers:</td>
 				<td><input type="checkbox" id="lineNumbers" /></td>
 			</tr>
 			<tr>
-				<td>Read-only:</td>
+				<td class="label">Read-only:</td>
 				<td><input type="checkbox" id="readOnly" /></td>
 			</tr>
 			<tr>
-				<td>Format on load:</td>
+				<td class="label">Format on load:</td>
 				<td><input type="checkbox" id="formatOnLoad" /></td>
+			</tr>
+			<tr>
+				<td class="label">Content types:</td>
+				<td><div contenteditable="true" id="contentTypes"></div></td>
 			</tr>
 			<tr>
 				<td colspan="2"><hr /></td>

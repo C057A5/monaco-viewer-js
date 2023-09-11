@@ -58,7 +58,7 @@ async function onmessage(msg) {
 			var languages = monaco.languages.getLanguages();
 			var lang =
 				languages.find(l => l.mimetypes?.includes(msg.data.contentType)) ||
-				languages.find(l => l.extensions.includes(msg.data.extension)) ||
+				languages.find(l => l.extensions?.includes(msg.data.extension)) ||
 				undefined;
 			var model = instance.getModel();
 			monaco.editor.setModelLanguage(model, lang?.id);

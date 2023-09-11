@@ -1,6 +1,7 @@
 var $monacoViewer;
 
 chrome.runtime.onMessage.addListener((m, s, r) => {
+	debugger;
 	if (s && s.id === chrome.runtime.id && $monacoViewer) {
 		if (m.settings)
 			$monacoViewer.postMessage({ update: m.settings }, "*");

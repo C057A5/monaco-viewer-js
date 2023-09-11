@@ -29,6 +29,7 @@ function loadSettings() {
 		document.getElementById("foldingMaximumRegions").value = settings.foldingMaximumRegions;
 		document.getElementById("readOnly").checked = settings.readOnly;
 		document.getElementById("formatOnLoad").checked = settings.formatOnLoad;
+		document.getElementById("contentTypes").innerText = settings.contentTypes?.join('\n');
 		chrome.storage.sync.set({ settings: settings });
 	});
 }
@@ -54,6 +55,7 @@ function getSettings() {
 			readOnly: document.getElementById("readOnly").checked,
 			formatOnLoad: document.getElementById("formatOnLoad").checked,
 			foldingMaximumRegions: document.getElementById("foldingMaximumRegions").value,
+			contentTypes: document.getElementById("contentTypes").innerText.split(/\n/g).map(c => c.trim())
 		}
 	};
 }
