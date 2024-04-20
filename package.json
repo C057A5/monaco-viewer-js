@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@vscode/codicons": "0.0.33",
     "monaco-editor": "^0.38.0"
   }
 }
