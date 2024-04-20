@@ -30,7 +30,7 @@ body>iframe {
 nav {
 	position: fixed;
 	box-sizing: border-box;
-	background: hsl(216deg 8% 88%);
+	background: hsl(0, 0%, 97%);
 	top: 0;
 	left: 0;
 	height: 100vh;

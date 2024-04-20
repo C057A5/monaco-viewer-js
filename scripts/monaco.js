@@ -128,7 +128,7 @@ async function $escapeSelection() {
 	await instance.updateOptions({ readOnly: false });
 	var sel = await instance.getSelection();
 	var cnt = await instance.getModel().getValueInRange(sel);
-	var esc = '"' + JSON.stringify(cnt).replace(/^"|"$/, "") + '"';
+	var esc = '"' + JSON.stringify(cnt).replace(/^"|"$/g, "") + '"';
 	await instance.executeEdits("my-source", [{ identifier: { major: 1, minor: 1 }, range: sel, text: esc, forceMoveMarkers: true }]);
 	await instance.updateOptions({ readOnly: rom });
 }
