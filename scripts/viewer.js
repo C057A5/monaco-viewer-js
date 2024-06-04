@@ -11,9 +11,9 @@ chrome.runtime.onMessage.addListener((m, s, r) => {
 
 //TODO: attach viewer based on contentType or extension, not on all documents having a single pre inside body
 //TODO: attach viewer on document start and render progressively
-
+//debugger;
 if (document.querySelector("body>pre")) {
-	if (!document.querySelectorAll("body>*:not(pre), body>*>*").length) {
+	if (!document.querySelectorAll("body>*:not(pre):not(.json-formatter-container), body>*>*").length) {
 
 		var stylesheet = document.createElement("link");
 		stylesheet.rel = "stylesheet";
