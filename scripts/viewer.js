@@ -19,7 +19,7 @@ if (contentTypes.indexOf(document.contentType.toLowerCase()) >= 0) {
 
 	var stylesheet = document.createElement("link");
 	stylesheet.rel = "stylesheet";
-	stylesheet.href = chrome.runtime.getURL("resources/viewer.css")
+	stylesheet.href = chrome.runtime.getURL("resources/viewer.css");
 	document.head.appendChild(stylesheet);
 
 	var frame = document.createElement("iframe");
@@ -49,6 +49,7 @@ if (contentTypes.indexOf(document.contentType.toLowerCase()) >= 0) {
 	createButton(tlb, "code_blocks", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
 	createButton(tlb, "swap_horiz", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
 	createButton(tlb, "zoom_in_map", "Collapse object (Alt+J)", ["$joinSelection()"]);
+	createButton(tlb, "data_object<span class=sel>select</span>", "Format object (Alt+O)", ["$formatObject()"]);
 	createButton(tlb);
 	createButton(tlb, "join", "Join lines (Ctrl+J)", ["$joinLines()"]);
 	createButton(tlb, "arrow_downward_alt", "Sort lines ascending", ["editor.action.sortLinesAscending"]);

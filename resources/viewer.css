@@ -91,6 +91,14 @@ nav>button>sub {
     font-weight: 900;
 }
 
+nav>button>span.sel {
+    position: absolute;
+    font-size: 10px;
+    top: 10px;
+    left: 10px;
+    font-variation-settings: "wght" 700;
+}
+
 nav>button:has(sub) {
     padding: 0 0 10px 0;
 }

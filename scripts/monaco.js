@@ -14,7 +14,7 @@ async function onmessage(msg) {
 
 			formatOnLoad = msg.data.settings.formatOnLoad;
 
-			monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+			await monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
 				comments: 'ignore',
 				trailingCommas: 'error'
 			});
@@ -34,25 +34,28 @@ async function onmessage(msg) {
 					mouseWheelZoom: true,
 					showFoldingControls: "always",
 					theme: msg.data.settings.theme,
+					unicodeHighlight: { ambiguousCharacters: false },
 				}
 			);
 
 			window.addEventListener("resize", () => instance.layout(), false);
 
-			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
-			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
-			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyJ, $joinSelection);
-			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, $formatSelection);
-			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
-			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
-			instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
-			instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescapeSelection);
-			instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escapeSelection);
+			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
+			await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
+			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyJ, $joinSelection);
+			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, $formatSelection);
+			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyO, $formatObject);
+			await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
+			await instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
+			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
+			await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescapeSelection);
+			await instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escapeSelection);
 
 			window.parent.postMessage({ ready: true }, "*");
 		}
 
-		if (msg.data.update && instance) instance.updateOptions(msg.data.update);
+		if (msg.data.update && instance) 
+			await instance.updateOptions(msg.data.update);
 
 		if (instance && msg.data.text) {
 			var languages = monaco.languages.getLanguages();
@@ -60,9 +63,9 @@ async function onmessage(msg) {
 				languages.find(l => l.mimetypes?.includes(msg.data.contentType)) ||
 				languages.find(l => l.extensions?.includes(msg.data.extension)) ||
 				undefined;
-			var model = instance.getModel();
-			monaco.editor.setModelLanguage(model, lang?.id);
-			model.setValue(msg.data.text)
+			var model = await instance.getModel();
+			await monaco.editor.setModelLanguage(model, lang?.id);
+			await model.setValue(msg.data.text)
 			if (formatOnLoad) setTimeout(initDoc, 100);
 		}
 
@@ -149,6 +152,14 @@ async function $formatDocument() {
 	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
 	await instance.updateOptions({ readOnly: false });
 	await instance.getAction('editor.action.formatDocument').run();
+	await instance.updateOptions({ readOnly: rom });
+}
+
+async function $formatObject() {
+	var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+	await instance.getAction('editor.action.selectToBracket').run();
+	await instance.updateOptions({ readOnly: false });
+	await instance.getAction('editor.action.formatSelection').run();
 	await instance.updateOptions({ readOnly: rom });
 }
 
