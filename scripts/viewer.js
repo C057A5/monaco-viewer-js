@@ -30,11 +30,11 @@ if (contentTypes.indexOf(document.contentType.toLowerCase()) >= 0) {
 
 	var tlb = document.createElement("nav");
 	createButton(tlb, 'data_object', "Format document (Alt+Shift+F)", ["$formatDocument()"]);
-	createButton(tlb, "unfold_less_double", "Fold all (Ctrl+K, Ctrl+0)", ["editor.foldAll"]);
-	createButton(tlb, "collapse_content", "Fold recursively (Ctrl+K, Ctrl+[)", ["editor.foldRecursively"]);
+	createButton(tlb, "unfold_less_double", "Fold all (Ctrl+K, Ctrl+0)", ["editor.foldAll", "editor.unfold"]);
+	createButton(tlb, "collapse_all", "Fold recursively (Ctrl+K, Ctrl+[)", ["editor.foldRecursively"]);
 	createButton(tlb, "unfold_less", "Fold (Ctrl+Shift+[)", ["editor.fold"]);
 	createButton(tlb, "unfold_more", "Unfold (Ctrl+K,Ctrl+])", ["editor.foldRecursively", "editor.unfold"]);
-	createButton(tlb, "expand_content", "Unfold recursively (Ctrl+K, Ctrl+])", ["editor.unfoldRecursively"]);
+	createButton(tlb, "expand_all", "Unfold recursively (Ctrl+K, Ctrl+])", ["editor.unfoldRecursively"]);
 	createButton(tlb, "unfold_more_double", "Unfold all (Ctrl+K, Ctrl+J)", ["editor.unfoldAll"]);
 	createButton(tlb);
 	createButton(tlb, "expand_less<sub>0</sub>", "Fold other levels (Ctrl+K, Ctrl+O)", ["$foldOtherLevels()"]);
@@ -49,6 +49,8 @@ if (contentTypes.indexOf(document.contentType.toLowerCase()) >= 0) {
 	createButton(tlb, "code_blocks", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
 	createButton(tlb, "swap_horiz", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
 	createButton(tlb, "zoom_in_map", "Collapse object (Alt+J)", ["$joinSelection()"]);
+	createButton(tlb, "collapse_content", "Shrink selection (Alt + Shift + ⬅️)", ["editor.action.smartSelect.shrink"]);
+	createButton(tlb, "expand_content", "Expand selection (Alt + Shift + ➡️)", ["editor.action.smartSelect.expand"]);
 	createButton(tlb, "data_object<span class=sel>select</span>", "Format object (Alt+O)", ["$formatObject()"]);
 	createButton(tlb);
 	createButton(tlb, "join", "Join lines (Ctrl+J)", ["$joinLines()"]);
