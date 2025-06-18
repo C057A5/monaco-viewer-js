@@ -172,7 +172,7 @@ async function $joinSelection() {
 		await instance.getAction('editor.action.selectToBracket').run();
 		var model = await instance.getModel();
 		if (model.getLanguageId() === 'json') {
-			var sel = model.getValueInRange(instance.getSelection());
+			var sel = await model.getValueInRange(await instance.getSelection());
 			if (sel.match(/^\s*\[.*\]\s*$/s)) {
 
 			} else {
