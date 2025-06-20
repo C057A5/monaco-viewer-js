@@ -1,7 +1,13 @@
+// TODO: add support for user-selected content types (?).
+// Do not let viewer attach to html or xml documents.
+
 let $monacoViewer;
 const contentTypes = [
-	"text/plain", 
-	"application/json"
+	'text/plain', 
+	'application/json',
+	'application/ld+json',
+	'text/javascript',
+	'text/css',
 ];
 
 chrome.runtime.onMessage.addListener((m, s, r) => {
@@ -15,7 +21,7 @@ chrome.runtime.onMessage.addListener((m, s, r) => {
 
 //TODO: attach viewer on document start and render progressively
 
-if (contentTypes.indexOf(document.contentType.toLowerCase()) >= 0) {
+if (contentTypes.indexOf(document.contentType?.toLowerCase()) >= 0) {
 
 	var stylesheet = document.createElement("link");
 	stylesheet.rel = "stylesheet";
