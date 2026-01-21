@@ -7,6 +7,9 @@
 		"storage",
 		"tabs"
 	],
+	"host_permissions": [
+		"<all_urls>"
+	],
 	"icons": {
 		"128": "resources/icon-128.png"
 	},

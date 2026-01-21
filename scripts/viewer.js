@@ -57,7 +57,7 @@ if (contentTypes.indexOf(document.contentType?.toLowerCase()) >= 0) {
 	createButton(tlb, "zoom_in_map", "Collapse object (Alt+J)", ["$joinSelection()"]);
 	createButton(tlb, "collapse_content", "Shrink selection (Alt + Shift + ⬅️)", ["editor.action.smartSelect.shrink"]);
 	createButton(tlb, "expand_content", "Expand selection (Alt + Shift + ➡️)", ["editor.action.smartSelect.expand"]);
-	createButton(tlb, "data_object<span class=sel>select</span>", "Format object (Alt+O)", ["$formatObject()"]);
+	createButton(tlb, "data_object<span class=\"sel\">select</span>", "Format object (Alt+O)", ["$formatObject()"]);
 	createButton(tlb);
 	createButton(tlb, "join", "Join lines (Ctrl+J)", ["$joinLines()"]);
 	createButton(tlb, "arrow_downward_alt", "Sort lines ascending", ["editor.action.sortLinesAscending"]);
