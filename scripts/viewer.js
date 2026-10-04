@@ -1,4 +1,4 @@
-// Content types are configured in the settings page (see defaults.js).
+﻿// Content types are configured in the settings page (see defaults.js).
 // Only attach to documents the browser rendered as plain text (body>pre), never to html or xml documents;
 // other listed types are rewritten to plain text by background.js.
 
