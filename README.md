@@ -19,7 +19,7 @@ Click the extension's toolbar icon to change the editor settings (theme, font, l
 
 Content types the browser does not show as plain text (it downloads them, like `application/yaml`, or renders them as documents, like `application/xml`) are rewritten to plain text so the viewer can display them. For these types:
 
-- the content is decoded as UTF-8,
+- the content is decoded with the encoding of a byte order mark or the XML declaration (`<?xml ... encoding="..."?>`), otherwise as UTF-8; a `charset` in the `Content-Type` header is ignored,
 - a `Content-Disposition: attachment` header is ignored, so the content is displayed instead of downloaded,
 - `file://` URLs are not affected.
 

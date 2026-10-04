@@ -279,18 +279,20 @@ async function $formatSelection() {
 	}
 }
 
+// foldAll/unfoldAll rather than (un)folding line 1's region recursively: in xml and yaml
+// line 1 (declaration, first key) does not start a region spanning the document, as '{' does in json.
 async function $goToTop() {
 	try {
-		await instance.setPosition({ column: 0, lineNumber: 0 });
-		await instance.getAction('editor.foldRecursively').run();
+		await instance.setPosition({ column: 1, lineNumber: 1 });
+		await instance.getAction('editor.foldAll').run();
 	} catch (error) {
 	}
 }
 
 async function $unfold(l) {
 	try {
-		await $goToTop();
-		await instance.getAction('editor.unfoldRecursively').run();
+		await instance.setPosition({ column: 1, lineNumber: 1 });
+		await instance.getAction('editor.unfoldAll').run();
 		await instance.getAction(`editor.foldLevel${l}`).run();
 	} catch (error) {
 	}

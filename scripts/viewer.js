@@ -11,13 +11,34 @@ const bracketlessLanguages = ['xml', 'yaml'];
 chrome.storage.sync.get('settings', data => {
 	const contentTypes = parseContentTypes(data?.settings?.contentTypes);
 	let contentType = document.contentType?.toLowerCase();
-	if (contentType?.startsWith(rewrittenTypePrefix))
+	const rewritten = contentType?.startsWith(rewrittenTypePrefix);
+	if (rewritten)
 		contentType = decodeContentType(contentType.substring(rewrittenTypePrefix.length));
 	if (contentTypes.includes(contentType) && document.querySelector("body>pre"))
-		attachViewer(contentType);
+		attachViewer(contentType, rewritten);
 });
 
-function attachViewer(contentType) {
+// Rewritten documents are decoded as rewrittenCharset (unless the browser found a BOM): rebuild the original
+// bytes and decode them with the encoding of the xml declaration, or utf-8 (the default of xml, yaml and json).
+function redecode(text) {
+	const decoder = new TextDecoder(rewrittenCharset);
+	const byteOf = new Uint8Array(0x10000).fill(0x3f); // '?' for characters no byte decodes to (e.g. a NUL turned into U+FFFD)
+	for (let b = 0; b < 256; b++)
+		byteOf[decoder.decode(new Uint8Array([b])).charCodeAt(0)] = b;
+	const bytes = new Uint8Array(text.length);
+	for (let i = 0; i < text.length; i++)
+		bytes[i] = byteOf[text.charCodeAt(i)];
+	const declared = /^\s*<\?xml[^>]*?\sencoding\s*=\s*["']([^"']+)["']/.exec(decoder.decode(bytes.subarray(0, 256)))?.[1];
+	try {
+		return new TextDecoder(declared || 'utf-8').decode(bytes);
+	} catch {
+		return new TextDecoder('utf-8').decode(bytes); // unknown encoding label
+	}
+}
+
+function attachViewer(contentType, rewritten) {
+	const pre = document.querySelector("body>pre");
+	const text = rewritten && document.characterSet.toLowerCase() === rewrittenCharset ? redecode(pre.textContent) : pre.textContent;
 
 	var stylesheet = document.createElement("link");
 	stylesheet.rel = "stylesheet";
@@ -77,7 +98,7 @@ function attachViewer(contentType) {
 		if (msg.data.ready) {
 			const fileName = document.location.pathname.split('/').pop();
 			$monacoViewer.postMessage({
-				text: document.querySelector("body>pre").textContent,
+				text: text,
 				contentType: contentType,
 				extension: fileName.includes('.') ? "." + fileName.split('.').pop() : undefined,
 			}, viewerOrigin);

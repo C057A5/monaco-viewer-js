@@ -43,6 +43,10 @@ function parseContentTypes(value) {
 // allowed in a subtype and a readable '+xml' suffix would make the browser render the document as xml again.
 const rewrittenTypePrefix = 'text/x-monaco-viewer-';
 
+// Rewritten documents are decoded with this charset, which maps every byte to a distinct character,
+// so viewer.js can rebuild the original bytes and decode them with the document's actual encoding.
+const rewrittenCharset = 'windows-1252';
+
 function encodeContentType(type) {
 	return [...type].map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
 }

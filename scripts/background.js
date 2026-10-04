@@ -28,7 +28,7 @@ async function applyRules() {
 			action: {
 				type: 'modifyHeaders',
 				responseHeaders: [
-					{ header: 'content-type', operation: 'set', value: `${rewrittenTypePrefix}${encodeContentType(t.type)}; charset=utf-8` },
+					{ header: 'content-type', operation: 'set', value: `${rewrittenTypePrefix}${encodeContentType(t.type)}; charset=${rewrittenCharset}` },
 					{ header: 'content-disposition', operation: 'remove' }
 				]
 			},
