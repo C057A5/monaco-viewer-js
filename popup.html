@@ -115,11 +115,15 @@
 			border-style: solid;
 			padding: 2px 4px;
 			border-radius: 3px;
-			max-height: 4em;
 			outline: none;
 			cursor: text;
 			overflow: auto;
 			min-width: 260px;
+			width: 100%;
+			box-sizing: border-box;
+			resize: vertical;
+			font-family: 'Segoe UI', sans-serif;
+			font-size: 10pt;
 		}
 
 	</style>
@@ -198,6 +202,10 @@
 				<td><input type="checkbox" id="formatOnLoad" /></td>
 			</tr>
 			<tr>
+				<td class="label">Content types:</td>
+				<td><textarea id="contentTypes" spellcheck="false" rows="6" wrap="off" title="Content types to open in the viewer, one per line"></textarea></td>
+			</tr>
+			<tr>
 				<td colspan="2"><hr /></td>
 			</tr>
 			<tr>
@@ -205,6 +213,7 @@
 			</tr>
 		</table>
 	</section>
+	<script src="scripts/defaults.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>
 

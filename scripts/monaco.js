@@ -4,8 +4,56 @@ var formatOnLoad = true;
 window.addEventListener("message", onmessage, false);
 require.config({ paths: { vs: 'node_modules/monaco-editor/min/vs' } });
 require(['vs/editor/editor.main'], function () {
+	registerXmlFormatter();
 	window.frames[0].postMessage({}, "*");
 });
+
+// Monaco has no xml formatter: re-indent the markup, keeping text-only elements on one line.
+function registerXmlFormatter() {
+	const indentOf = options => options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+	monaco.languages.registerDocumentFormattingEditProvider('xml', {
+		provideDocumentFormattingEdits: (model, options) => [{
+			range: model.getFullModelRange(),
+			text: formatXml(model.getValue(), indentOf(options), model.getEOL())
+		}]
+	});
+	monaco.languages.registerDocumentRangeFormattingEditProvider('xml', {
+		provideDocumentRangeFormattingEdits: (model, range, options) => {
+			range = new monaco.Range(range.startLineNumber, 1, range.endLineNumber, model.getLineMaxColumn(range.endLineNumber));
+			const base = model.getLineContent(range.startLineNumber).match(/^\s*/)[0];
+			return [{ range: range, text: formatXml(model.getValueInRange(range), indentOf(options), model.getEOL(), base) }];
+		}
+	});
+}
+
+function formatXml(text, indent, eol, base = '') {
+	// The last alternative keeps malformed input (e.g. a stray '<') instead of dropping it.
+	const tokens = text.match(/<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<!DOCTYPE(?:[^\[>]|\[[\s\S]*?\])*>|<(?:"[^"]*"|'[^']*'|[^'">])*>|[^<]+|[\s\S]/gi) || [];
+	const isOpen = t => /^<[^!?\/]/.test(t) && !t.endsWith('/>');
+	const isText = t => !t?.startsWith('<');
+	const isClose = t => t?.startsWith('</');
+	const lines = [];
+	let depth = 0;
+	const add = line => lines.push(base + indent.repeat(depth) + line);
+	for (let i = 0; i < tokens.length; i++) {
+		const t = tokens[i];
+		if (isText(t)) {
+			if (t.trim()) add(t.trim());
+		} else if (isClose(t)) {
+			depth = Math.max(depth - 1, 0);
+			add(t);
+		} else if (isOpen(t) && isClose(tokens[i + 1])) {
+			add(t + tokens[++i]);
+		} else if (isOpen(t) && isText(tokens[i + 1]) && isClose(tokens[i + 2])) {
+			add(t + tokens[i + 1].trim() + tokens[i + 2]);
+			i += 2;
+		} else {
+			add(t);
+			if (isOpen(t)) depth++;
+		}
+	}
+	return lines.join(eol);
+}
 
 
 async function onmessage(msg) {
@@ -61,10 +109,13 @@ async function onmessage(msg) {
 			var languages = monaco.languages.getLanguages();
 			var lang =
 				languages.find(l => l.mimetypes?.includes(msg.data.contentType)) ||
+				// e.g. application/yaml -> yaml, application/rss+xml -> xml
+				languages.find(l => l.id === msg.data.contentType?.replace(/^.*[\/+](x-)?/, '')) ||
 				languages.find(l => l.extensions?.includes(msg.data.extension)) ||
 				undefined;
 			var model = await instance.getModel();
 			await monaco.editor.setModelLanguage(model, lang?.id);
+			window.parent.postMessage({ language: model.getLanguageId() }, "*");
 			await model.setValue(msg.data.text)
 			if (formatOnLoad) setTimeout(initDoc, 100);
 		}
