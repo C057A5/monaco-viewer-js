@@ -117,13 +117,55 @@ function formatXml(text, indent, eol, base = '') {
 	return lines.join(eol);
 }
 
+// Sequences of json records: RFC 7464 json-seq (RS before each record), NDJSON / JSON Lines (one per line);
+// SignalR messages (RS after each message) are served as one of these or copied as text.
+const jsonRecordTypes = ['application/json-seq', 'application/x-ndjson', 'application/ndjson', 'application/jsonl', 'application/x-jsonlines', 'application/jsonlines'];
+const jsonRecordExtensions = ['.ndjson', '.jsonl'];
+
+// One record per line: RS (0x1E) characters become line breaks, and a value starting on the line
+// where the previous one ended moves to a new line. Braces and brackets inside strings are skipped.
+function splitJsonRecords(text) {
+	const out = [];
+	let depth = 0, inString = false, escaped = false, ended = false;
+	for (const c of text.replace(/\x1e/g, '\n')) {
+		if (inString) {
+			if (escaped) escaped = false;
+			else if (c === '\\') escaped = true;
+			else if (c === '"') inString = false;
+		} else if (c === '\n') {
+			ended = false;
+		} else if (!/\s/.test(c)) {
+			if (ended && depth === 0) {
+				out.push('\n');
+				ended = false;
+			}
+			if (c === '"') inString = true;
+			else if (c === '{' || c === '[') depth++;
+			else if (c === '}' || c === ']') {
+				depth = Math.max(depth - 1, 0);
+				ended = depth === 0;
+			}
+		}
+		out.push(c);
+	}
+	return out.join('').replace(/[ \t]+\n/g, '\n').replace(/\n{2,}/g, '\n').replace(/^\n+/, '');
+}
 
 // Messages from the viewer content script in the hosting page only.
 async function onmessage(msg) {
 	if (msg && msg.data && msg.source === window.parent) {
 		if (instance && msg.data.text) {
+			var text = msg.data.text;
 			var languages = monaco.languages.getLanguages();
-			var lang =
+			var lang;
+			if (jsonRecordTypes.includes(msg.data.contentType) || jsonRecordExtensions.includes(msg.data.extension?.toLowerCase())) {
+				// Shown as json, one record per line so the json formatter formats each record,
+				// and not validated, as a sequence of records is not a single json document.
+				text = splitJsonRecords(text);
+				lang = { id: 'json' };
+				await monaco.languages.json.jsonDefaults.setDiagnosticsOptions({ validate: false });
+			}
+			lang = lang ||
 				languages.find(l => l.mimetypes?.includes(msg.data.contentType)) ||
 				// e.g. application/yaml -> yaml, application/rss+xml -> xml
 				languages.find(l => l.id === msg.data.contentType?.replace(/^.*[\/+](x-)?/, '')) ||
@@ -132,7 +174,7 @@ async function onmessage(msg) {
 			var model = await instance.getModel();
 			await monaco.editor.setModelLanguage(model, lang?.id);
 			window.parent.postMessage({ language: model.getLanguageId() }, "*");
-			await model.setValue(msg.data.text)
+			await model.setValue(text)
 			setTimeout(initDoc, 100);
 		}
 

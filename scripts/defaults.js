@@ -5,6 +5,7 @@ const defaultContentTypes = [
 	'text/plain',
 	'application/json',
 	'application/ld+json',
+	'application/json-seq',
 	'application/yaml',
 	'application/x-yaml',
 	'text/yaml',
