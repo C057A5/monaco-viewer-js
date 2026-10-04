@@ -27,7 +27,7 @@
 		}
 
 		table {
-			border-spacing: 10px;
+			border-spacing: 5px;
 			width: 100%;
 			text-align: left;
 		}
@@ -98,6 +98,22 @@
 		input[type=number] {
 			width: 80px;
 		}
+
+		select {
+			width: 100px;
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			padding: 2px 2px;
+			background: #fff;
+			font-family: 'Segoe UI', sans-serif;
+			font-size: 10pt;
+			vertical-align: top;
+		}
+
+			select:focus {
+				outline: none;
+				box-shadow: 0 0 5px 1px #22a6f2;
+			}
 
 		input::-webkit-inner-spin-button {
 			margin: -1px -2px -2px 8px;
@@ -173,45 +189,60 @@
 					</div>
 				</td>
 			</tr>
-			<tr>
+			<tr title="Editor color theme.&#10;Examples: vs (light, the default when empty), vs-dark, hc-light, hc-black.">
 				<td class="label">Theme:</td>
 				<td><input type="text" spellcheck="false" id="theme" list="themes" /></td>
 			</tr>
-			<tr>
+			<tr title="CSS font family list; the first installed font is used.&#10;Examples: Consolas; 'Cascadia Code', Consolas, monospace; Fira Code.">
 				<td class="label">Font family:</td>
 				<td><input type="text" spellcheck="false" id="fontFamily" list="fonts" /></td>
 			</tr>
-			<tr>
+			<tr title="Font ligatures (e.g. => shown as an arrow, in fonts that have them).&#10;Empty or true: on. false: off.&#10;Or CSS font-feature-settings, e.g. 'calt', 'ss01' or 'liga' 0.">
 				<td class="label">Font ligatures:</td>
 				<td><input type="text" spellcheck="false" id="fontLigatures" /></td>
 			</tr>
-			<tr>
+			<tr title="Font size in pixels.&#10;Examples: 12, 14. Ctrl+mouse wheel zooms in the editor.">
 				<td class="label">Font size:</td>
 				<td><input type="number" id="fontSize" /></td>
 			</tr>
-			<tr>
+			<tr title="Font weight, 100 (thin) to 900 (black).&#10;Examples: 400 normal, 300 light, 700 bold.">
 				<td class="label">Font weight:</td>
 				<td><input type="number" id="fontWeight" step="100" min="100" max="900" /></td>
 			</tr>
-			<tr>
+			<tr title="Maximum number of folding regions computed per document.&#10;Large documents beyond it cannot be folded completely; higher values are slower.&#10;Examples: 10000 (default), 50000 for very large documents.">
 				<td class="label">Folding maximum regions:</td>
 				<td><input type="number" id="foldingMaximumRegions" step="1000" min="1000" max="50000" /></td>
 			</tr>
-			<tr>
+			<tr title="Show line numbers.">
 				<td class="label">Line numbers:</td>
 				<td><input type="checkbox" id="lineNumbers" /></td>
 			</tr>
-			<tr>
+			<tr title="Prevent editing the document.&#10;Formatting, join lines and escape/unescape still work.">
 				<td class="label">Read-only:</td>
 				<td><input type="checkbox" id="readOnly" /></td>
 			</tr>
-			<tr>
+			<tr title="Format the document after loading (Format document, Alt+Shift+F).&#10;JSON, XML, JavaScript and CSS; YAML has no formatter.">
 				<td class="label">Format on load:</td>
 				<td><input type="checkbox" id="formatOnLoad" /></td>
 			</tr>
-			<tr>
+			<tr title="Fold the document to this level after loading, like the Fold level buttons.&#10;0 (default): no folding. 1: everything folded. 2: top-level content visible, deeper levels folded. 7: almost everything unfolded.">
+				<td class="label">Fold level on load:</td>
+				<td>
+					<select id="foldLevelOnLoad">
+						<option value="0">No folding</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+					</select>
+				</td>
+			</tr>
+			<tr title="Content types to open in the viewer, one per line.&#10;Examples: text/plain, application/json, application/yaml, application/xml, text/csv.&#10;Types the browser downloads or renders itself (YAML, XML, ...) are converted to text for the viewer.">
 				<td class="label">Content types:</td>
-				<td><textarea id="contentTypes" spellcheck="false" rows="6" wrap="off" title="Content types to open in the viewer, one per line"></textarea></td>
+				<td><textarea id="contentTypes" spellcheck="false" rows="8" wrap="off"></textarea></td>
 			</tr>
 			<tr>
 				<td colspan="2"><hr /></td>

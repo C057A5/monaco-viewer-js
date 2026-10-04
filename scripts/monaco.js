@@ -1,5 +1,6 @@
 var instance;
 var formatOnLoad = true;
+var foldLevelOnLoad = 0;
 
 // Commands the viewer toolbar may run, besides editor actions (editor.*).
 const commands = { $formatDocument, $foldOtherLevels, $unfold, $joinSelection, $formatObject, $joinLines, $toggleWrap, $unescapeSelection, $escapeSelection };
@@ -13,6 +14,7 @@ require(['vs/editor/editor.main'], function () {
 		if (area === 'sync' && changes.settings && instance) {
 			const settings = settingsWithDefaults(changes.settings.newValue);
 			formatOnLoad = settings.formatOnLoad;
+			foldLevelOnLoad = settings.foldLevelOnLoad;
 			instance.updateOptions(editorOptions(settings));
 		}
 	});
@@ -33,6 +35,7 @@ function editorOptions(settings) {
 
 async function createEditor(settings) {
 	formatOnLoad = settings.formatOnLoad;
+	foldLevelOnLoad = settings.foldLevelOnLoad;
 
 	await monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
 		comments: 'ignore',
@@ -130,7 +133,7 @@ async function onmessage(msg) {
 			await monaco.editor.setModelLanguage(model, lang?.id);
 			window.parent.postMessage({ language: model.getLanguageId() }, "*");
 			await model.setValue(msg.data.text)
-			if (formatOnLoad) setTimeout(initDoc, 100);
+			setTimeout(initDoc, 100);
 		}
 
 		if (instance) {
@@ -147,16 +150,19 @@ async function onmessage(msg) {
 	}
 }
 
+// After loading: format (if enabled) and fold to the configured level.
 async function initDoc() {
 	try {
 		await instance.focus();
-		var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
-		await instance.updateOptions({ readOnly: false });
-		//await instance.getAction('editor.unfoldRecursively').run();
-		await instance.getAction('editor.action.formatDocument').run();
-		await instance.updateOptions({ readOnly: rom });
-		await instance.getAction('editor.foldRecursively').run();
-		await instance.getAction('editor.unfold').run();
+		if (formatOnLoad) {
+			var rom = await instance.getOption(monaco.editor.EditorOption.readOnly);
+			await instance.updateOptions({ readOnly: false });
+			await instance.getAction('editor.action.formatDocument').run();
+			await instance.updateOptions({ readOnly: rom });
+		}
+		const level = Math.min(parseInt(foldLevelOnLoad), 7);
+		if (level >= 1) // 0: no folding
+			await $unfold(level);
 		await instance.focus();
 	} catch (error) {
 	}
@@ -292,8 +298,11 @@ async function $goToTop() {
 async function $unfold(l) {
 	try {
 		await instance.setPosition({ column: 1, lineNumber: 1 });
-		await instance.getAction('editor.unfoldAll').run();
-		await instance.getAction(`editor.foldLevel${l}`).run();
+		// Levels above l open, level l and deeper folded, so expanding a region shows its children folded.
+		// Not the editor.foldLevelN action: it folds level l only and skips regions containing the cursor,
+		// e.g. json's root '{' on line 1 for level 1.
+		const foldingModel = await instance.getContribution('editor.contrib.folding').getFoldingModel();
+		foldingModel.toggleCollapseState(foldingModel.getRegionsInside(null, (region, level) => region.isCollapsed !== (level >= l)));
 	} catch (error) {
 	}
 }

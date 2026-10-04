@@ -14,9 +14,16 @@ function loadSettings() {
 		document.getElementById("foldingMaximumRegions").value = settings.foldingMaximumRegions;
 		document.getElementById("readOnly").checked = settings.readOnly;
 		document.getElementById("formatOnLoad").checked = settings.formatOnLoad;
+		document.getElementById("foldLevelOnLoad").value = foldLevel(settings.foldLevelOnLoad);
 		document.getElementById("contentTypes").value = settings.contentTypes;
 		savedSettings = JSON.stringify(getSettings());
 	});
+}
+
+// Fold level 0 (no folding) to 7; an invalid stored value falls back to the default.
+function foldLevel(value) {
+	const level = parseInt(value);
+	return isNaN(level) ? defaultSettings.foldLevelOnLoad : Math.min(Math.max(level, 0), 7);
 }
 
 // Form contents as last loaded or saved; undefined until loaded, so an early blur cannot save an empty form.
@@ -43,6 +50,7 @@ function getSettings() {
 			lineNumbers: document.getElementById("lineNumbers").checked,
 			readOnly: document.getElementById("readOnly").checked,
 			formatOnLoad: document.getElementById("formatOnLoad").checked,
+			foldLevelOnLoad: foldLevel(document.getElementById("foldLevelOnLoad").value),
 			foldingMaximumRegions: document.getElementById("foldingMaximumRegions").value,
 			contentTypes: parseContentTypes(document.getElementById("contentTypes").value).join('\n'),
 		}

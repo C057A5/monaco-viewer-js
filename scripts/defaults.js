@@ -21,15 +21,17 @@ const defaultSettings = {
 	lineNumbers: true,
 	readOnly: true,
 	formatOnLoad: true,
+	foldLevelOnLoad: 0,
 	foldingMaximumRegions: 10000,
 	contentTypes: defaultContentTypes,
 };
 
-// Booleans and the content types are replaced only when missing, other settings also when empty.
+// Booleans, the content types (may be empty) and the fold level (may be 0) are replaced only when missing,
+// other settings also when empty.
 function settingsWithDefaults(settings) {
 	const result = { ...settings };
 	for (const [key, value] of Object.entries(defaultSettings))
-		if (typeof value === 'boolean' || key === 'contentTypes' ? result[key] === undefined : !result[key])
+		if (typeof value === 'boolean' || key === 'contentTypes' || key === 'foldLevelOnLoad' ? result[key] === undefined : !result[key])
 			result[key] = value;
 	return result;
 }

@@ -61,6 +61,7 @@ function attachViewer(contentType, rewritten) {
 	createButton(tlb, "unfold_more_double", "Unfold all (Ctrl+K, Ctrl+J)", ["editor.unfoldAll"]);
 	createButton(tlb);
 	createButton(tlb, "expand_less<sub>0</sub>", "Fold other levels", ["$foldOtherLevels()"]);
+	createButton(tlb, "expand_less<sub>1</sub>", "Fold level 1 (Ctrl+K, Ctrl+1)", ["$unfold(1)"]);
 	createButton(tlb, "expand_less<sub>2</sub>", "Fold level 2 (Ctrl+K, Ctrl+2)", ["$unfold(2)"]);
 	createButton(tlb, "expand_less<sub>3</sub>", "Fold level 3 (Ctrl+K, Ctrl+3)", ["$unfold(3)"]);
 	createButton(tlb, "expand_less<sub>4</sub>", "Fold level 4 (Ctrl+K, Ctrl+4)", ["$unfold(4)"]);
