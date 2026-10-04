@@ -36,7 +36,6 @@
 		{
 			"resources": [
 				"viewer.html",
-				"popup.html",
 				"resources/viewer.css",
 				"resources/material-symbols-rounded.woff2"
 			],

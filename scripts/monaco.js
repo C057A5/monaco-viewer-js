@@ -1,12 +1,71 @@
 var instance;
 var formatOnLoad = true;
 
+// Commands the viewer toolbar may run, besides editor actions (editor.*).
+const commands = { $formatDocument, $foldOtherLevels, $unfold, $joinSelection, $formatObject, $joinLines, $toggleWrap, $unescapeSelection, $escapeSelection };
+
 window.addEventListener("message", onmessage, false);
 require.config({ paths: { vs: 'node_modules/monaco-editor/min/vs' } });
 require(['vs/editor/editor.main'], function () {
 	registerXmlFormatter();
-	window.frames[0].postMessage({}, "*");
+	chrome.storage.sync.get('settings', data => createEditor(settingsWithDefaults(data?.settings)));
+	chrome.storage.onChanged.addListener((changes, area) => {
+		if (area === 'sync' && changes.settings && instance) {
+			const settings = settingsWithDefaults(changes.settings.newValue);
+			formatOnLoad = settings.formatOnLoad;
+			instance.updateOptions(editorOptions(settings));
+		}
+	});
 });
+
+function editorOptions(settings) {
+	return {
+		foldingMaximumRegions: settings.foldingMaximumRegions,
+		fontFamily: settings.fontFamily,
+		fontSize: settings.fontSize,
+		fontWeight: settings.fontWeight,
+		fontLigatures: /^\s*(true)?\s*$/ig.test(settings.fontLigatures) ? true : settings.fontLigatures,
+		lineNumbers: settings.lineNumbers,
+		readOnly: settings.readOnly,
+		theme: settings.theme,
+	};
+}
+
+async function createEditor(settings) {
+	formatOnLoad = settings.formatOnLoad;
+
+	await monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+		comments: 'ignore',
+		trailingCommas: 'error'
+	});
+	instance = await monaco.editor.create(
+		document.querySelector("main"),
+		{
+			...editorOptions(settings),
+			automaticLayout: true,
+			wordWrap: "off",
+			scrollBeyondLastLine: false,
+			mouseWheelZoom: true,
+			showFoldingControls: "always",
+			unicodeHighlight: { ambiguousCharacters: false },
+		}
+	);
+
+	window.addEventListener("resize", () => instance.layout(), false);
+
+	await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
+	await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
+	await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyJ, $joinSelection);
+	await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, $formatSelection);
+	await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyO, $formatObject);
+	await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
+	await instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
+	await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
+	await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescapeSelection);
+	await instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escapeSelection);
+
+	window.parent.postMessage({ ready: true }, "*");
+}
 
 // Monaco has no xml formatter: re-indent the markup, keeping text-only elements on one line.
 function registerXmlFormatter() {
@@ -56,55 +115,9 @@ function formatXml(text, indent, eol, base = '') {
 }
 
 
+// Messages from the viewer content script in the hosting page only.
 async function onmessage(msg) {
-	if (msg && msg.data) {
-		if (msg.data.settings) {
-
-			formatOnLoad = msg.data.settings.formatOnLoad;
-
-			await monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-				comments: 'ignore',
-				trailingCommas: 'error'
-			});
-			instance = await monaco.editor.create(
-				document.querySelector("main"),
-				{
-					automaticLayout: true,
-					foldingMaximumRegions: msg.data.settings.foldingMaximumRegions,
-					fontFamily: msg.data.settings.fontFamily,
-					fontSize: msg.data.settings.fontSize,
-					fontWeight: msg.data.settings.fontWeight,
-					fontLigatures: /^\s*(true)?\s*$/ig.test(msg.data.settings.fontLigatures) ? true : msg.data.settings.fontLigatures,
-					lineNumbers: msg.data.settings.lineNumbers,
-					wordWrap: "off",
-					readOnly: msg.data.settings.readOnly,
-					scrollBeyondLastLine: false,
-					mouseWheelZoom: true,
-					showFoldingControls: "always",
-					theme: msg.data.settings.theme,
-					unicodeHighlight: { ambiguousCharacters: false },
-				}
-			);
-
-			window.addEventListener("resize", () => instance.layout(), false);
-
-			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, $formatDocument);
-			await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ, $joinLines);
-			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyJ, $joinSelection);
-			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, $formatSelection);
-			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyO, $formatObject);
-			await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => instance.getAction('actions.find').run());
-			await instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS), () => instance.getAction('editor.action.selectToBracket').run());
-			await instance.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, $toggleWrap);
-			await instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Semicolon, $unescapeSelection);
-			await instance.addCommand(monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Quote), $escapeSelection);
-
-			window.parent.postMessage({ ready: true }, "*");
-		}
-
-		if (msg.data.update && instance)
-			await instance.updateOptions(msg.data.update);
-
+	if (msg && msg.data && msg.source === window.parent) {
 		if (instance && msg.data.text) {
 			var languages = monaco.languages.getLanguages();
 			var lang =
@@ -125,10 +138,10 @@ async function onmessage(msg) {
 			msg.data.actions?.forEach(async a => {
 				var fun = a.replace(/^([^\(]+)(\((.*)\))?$/, '$1');
 				var arg = a.replace(/^([^\(]+)\((.*)\)$/, '$2');
-				if (fun.substring(0, 1) != "$")
+				if (fun.startsWith("editor."))
 					await instance.getAction(fun)?.run();
-				else
-					await window[fun](arg ? JSON.parse(arg) : undefined);
+				else if (Object.hasOwn(commands, fun))
+					await commands[fun](arg ? JSON.parse(arg) : undefined);
 			});
 		}
 	}

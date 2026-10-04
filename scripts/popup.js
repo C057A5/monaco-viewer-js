@@ -1,26 +1,10 @@
-window.addEventListener("message", onmessage, false);
 window.addEventListener("load", loadSettings, false);
 window.addEventListener("blur", saveSettings, false);
-
-function onmessage(msg) {
-	var settings = getSettings();
-	window.parent.postMessage(settings, "*");
-}
 
 function loadSettings() {
 	document.getElementById("save").addEventListener("click", saveSettings, false);
 	chrome.storage.sync.get('settings', function (data) {
-		var settings = data && data.settings ? data.settings : {};
-		if (!settings.theme) settings.theme = '';
-		if (!settings.fontFamily) settings.fontFamily = 'monospace';
-		if (!settings.fontSize) settings.fontSize = 12;
-		if (!settings.fontWeight) settings.fontWeight = '400';
-		if (!settings.fontLigatures) settings.fontLigatures = '';
-		if (settings.lineNumbers === undefined) settings.lineNumbers = true;
-		if (settings.readOnly === undefined) settings.readOnly = true;
-		if (settings.formatOnLoad === undefined) settings.formatOnLoad = true;
-		if (!settings.foldingMaximumRegions) settings.foldingMaximumRegions = 10000;
-		if (settings.contentTypes === undefined) settings.contentTypes = defaultContentTypes;
+		var settings = settingsWithDefaults(data?.settings);
 		document.getElementById("theme").value = settings.theme;
 		document.getElementById("fontFamily").value = settings.fontFamily;
 		document.getElementById("fontSize").value = settings.fontSize;
@@ -43,10 +27,8 @@ function saveSettings() {
 	if (savedSettings === undefined || JSON.stringify(settings) === savedSettings)
 		return;
 	savedSettings = JSON.stringify(settings);
+	// Open viewers pick up the change through chrome.storage.onChanged (monaco.js).
 	chrome.storage.sync.set(settings);
-	chrome.tabs.query(
-		{ discarded: false, status: 'complete' },
-		tabs => tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, settings, null, r => chrome.runtime.lastError)));
 }
 
 function getSettings() {

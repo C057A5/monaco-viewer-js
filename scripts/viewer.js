@@ -3,15 +3,8 @@
 // other listed types are rewritten to plain text by background.js.
 
 let $monacoViewer;
+const viewerOrigin = new URL(chrome.runtime.getURL("")).origin;
 const bracketlessLanguages = ['xml', 'yaml'];
-
-chrome.runtime.onMessage.addListener((m, s, r) => {
-	//debugger;
-	if (s && s.id === chrome.runtime.id && $monacoViewer) {
-		if (m.settings)
-			$monacoViewer.postMessage({ update: m.settings }, "*");
-	}
-});
 
 //TODO: attach viewer on document start and render progressively
 
@@ -19,7 +12,7 @@ chrome.storage.sync.get('settings', data => {
 	const contentTypes = parseContentTypes(data?.settings?.contentTypes);
 	let contentType = document.contentType?.toLowerCase();
 	if (contentType?.startsWith(rewrittenTypePrefix))
-		contentType = contentTypes[contentType.substring(rewrittenTypePrefix.length)];
+		contentType = decodeContentType(contentType.substring(rewrittenTypePrefix.length));
 	if (contentTypes.includes(contentType) && document.querySelector("body>pre"))
 		attachViewer(contentType);
 });
@@ -77,16 +70,19 @@ function attachViewer(contentType) {
 	);
 	document.body.appendChild(tlb);
 
+	// Messages from the viewer frame only, not from the page's scripts.
 	window.addEventListener("message", msg => {
-		if (msg && msg.data && msg.data.ready) {
+		if (!msg || !msg.data || msg.source !== $monacoViewer)
+			return;
+		if (msg.data.ready) {
 			const fileName = document.location.pathname.split('/').pop();
 			$monacoViewer.postMessage({
 				text: document.querySelector("body>pre").textContent,
 				contentType: contentType,
 				extension: fileName.includes('.') ? "." + fileName.split('.').pop() : undefined,
-			}, "*");
+			}, viewerOrigin);
 		}
-		if (msg && msg.data && msg.data.language !== undefined)
+		if (msg.data.language !== undefined)
 			bracketCommands.forEach(b => b.hidden = bracketlessLanguages.includes(msg.data.language));
 	}, false);
 
@@ -98,7 +94,7 @@ function createButton(tlb, label, title, actions) {
 		button.innerHTML = label;
 		button.title = title;
 		button.onclick = function (ev) {
-			$monacoViewer.postMessage({ actions: actions }, "*");
+			$monacoViewer.postMessage({ actions: actions }, viewerOrigin);
 			$monacoViewer.focus();
 		};
 		return tlb.appendChild(button);

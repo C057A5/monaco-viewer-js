@@ -9,8 +9,15 @@ chrome.storage.onChanged.addListener((changes, area) => {
 		updateRules();
 });
 
+// Serialized, so overlapping updates cannot conflict on rule ids.
+let rulesUpdate = Promise.resolve();
+function updateRules() {
+	rulesUpdate = rulesUpdate.then(applyRules).catch(e => console.error('Monaco Viewer: updating rules failed', e));
+	return rulesUpdate;
+}
+
 // Rewrite the response content-type of the listed types the browser would not render as plain text.
-async function updateRules() {
+async function applyRules() {
 	const data = await chrome.storage.sync.get('settings');
 	const rules = parseContentTypes(data?.settings?.contentTypes)
 		.map((type, index) => ({ type, index }))
@@ -21,7 +28,7 @@ async function updateRules() {
 			action: {
 				type: 'modifyHeaders',
 				responseHeaders: [
-					{ header: 'content-type', operation: 'set', value: `${rewrittenTypePrefix}${t.index}; charset=utf-8` },
+					{ header: 'content-type', operation: 'set', value: `${rewrittenTypePrefix}${encodeContentType(t.type)}; charset=utf-8` },
 					{ header: 'content-disposition', operation: 'remove' }
 				]
 			},
