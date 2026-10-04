@@ -31,12 +31,18 @@ function loadSettings() {
 		document.getElementById("readOnly").checked = settings.readOnly;
 		document.getElementById("formatOnLoad").checked = settings.formatOnLoad;
 		document.getElementById("contentTypes").value = settings.contentTypes;
-		chrome.storage.sync.set({ settings: settings });
+		savedSettings = JSON.stringify(getSettings());
 	});
 }
 
+// Form contents as last loaded or saved; undefined until loaded, so an early blur cannot save an empty form.
+var savedSettings;
+
 function saveSettings() {
 	var settings = getSettings();
+	if (savedSettings === undefined || JSON.stringify(settings) === savedSettings)
+		return;
+	savedSettings = JSON.stringify(settings);
 	chrome.storage.sync.set(settings);
 	chrome.tabs.query(
 		{ discarded: false, status: 'complete' },

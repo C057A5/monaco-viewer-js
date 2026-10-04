@@ -11,7 +11,6 @@ chrome.runtime.onMessage.addListener((m, s, r) => {
 		if (m.settings)
 			$monacoViewer.postMessage({ update: m.settings }, "*");
 	}
-	return true;
 });
 
 //TODO: attach viewer on document start and render progressively
@@ -43,13 +42,13 @@ function attachViewer(contentType) {
 	createButton(tlb, "unfold_less_double", "Fold all (Ctrl+K, Ctrl+0)", ["editor.foldAll", "editor.unfold"]);
 	createButton(tlb, "collapse_all", "Fold recursively (Ctrl+K, Ctrl+[)", ["editor.foldRecursively"]);
 	createButton(tlb, "unfold_less", "Fold (Ctrl+Shift+[)", ["editor.fold"]);
-	createButton(tlb, "unfold_more", "Unfold (Ctrl+K,Ctrl+])", ["editor.foldRecursively", "editor.unfold"]);
+	createButton(tlb, "unfold_more", "Unfold (Ctrl+Shift+])", ["editor.foldRecursively", "editor.unfold"]);
 	createButton(tlb, "expand_all", "Unfold recursively (Ctrl+K, Ctrl+])", ["editor.unfoldRecursively"]);
 	createButton(tlb, "unfold_more_double", "Unfold all (Ctrl+K, Ctrl+J)", ["editor.unfoldAll"]);
 	createButton(tlb);
-	createButton(tlb, "expand_less<sub>0</sub>", "Fold other levels (Ctrl+K, Ctrl+O)", ["$foldOtherLevels()"]);
+	createButton(tlb, "expand_less<sub>0</sub>", "Fold other levels", ["$foldOtherLevels()"]);
 	createButton(tlb, "expand_less<sub>2</sub>", "Fold level 2 (Ctrl+K, Ctrl+2)", ["$unfold(2)"]);
-	createButton(tlb, "expand_less<sub>3</sub>", "Fold level 3 (Ctrl+K, Ctrl+2)", ["$unfold(3)"]);
+	createButton(tlb, "expand_less<sub>3</sub>", "Fold level 3 (Ctrl+K, Ctrl+3)", ["$unfold(3)"]);
 	createButton(tlb, "expand_less<sub>4</sub>", "Fold level 4 (Ctrl+K, Ctrl+4)", ["$unfold(4)"]);
 	createButton(tlb, "expand_less<sub>5</sub>", "Fold level 5 (Ctrl+K, Ctrl+5)", ["$unfold(5)"]);
 	createButton(tlb, "expand_less<sub>6</sub>", "Fold level 6 (Ctrl+K, Ctrl+6)", ["$unfold(6)"]);
@@ -74,17 +73,17 @@ function attachViewer(contentType) {
 	bracketCommands.push(
 		createButton(tlb),
 		createButton(tlb, "U", "Unescape (Ctrl+Alt+;)", ["$unescapeSelection()"]),
-		createButton(tlb, "E", "Escape (Ctrl+Alt+\'')", ["$escapeSelection()"]),
+		createButton(tlb, "E", "Escape (Ctrl+Alt+')", ["$escapeSelection()"]),
 	);
 	document.body.appendChild(tlb);
 
 	window.addEventListener("message", msg => {
 		if (msg && msg.data && msg.data.ready) {
+			const fileName = document.location.pathname.split('/').pop();
 			$monacoViewer.postMessage({
-				text: document.querySelector("body>pre").innerText,
+				text: document.querySelector("body>pre").textContent,
 				contentType: contentType,
-				extension: "." + document.location.pathname.split('.').pop(),
-				settings: localStorage.getItem("settings")
+				extension: fileName.includes('.') ? "." + fileName.split('.').pop() : undefined,
 			}, "*");
 		}
 		if (msg && msg.data && msg.data.language !== undefined)
