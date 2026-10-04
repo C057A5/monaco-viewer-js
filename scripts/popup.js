@@ -20,6 +20,7 @@ function loadSettings() {
 		if (settings.readOnly === undefined) settings.readOnly = true;
 		if (settings.formatOnLoad === undefined) settings.formatOnLoad = true;
 		if (!settings.foldingMaximumRegions) settings.foldingMaximumRegions = 10000;
+		if (settings.contentTypes === undefined) settings.contentTypes = defaultContentTypes;
 		document.getElementById("theme").value = settings.theme;
 		document.getElementById("fontFamily").value = settings.fontFamily;
 		document.getElementById("fontSize").value = settings.fontSize;
@@ -29,6 +30,7 @@ function loadSettings() {
 		document.getElementById("foldingMaximumRegions").value = settings.foldingMaximumRegions;
 		document.getElementById("readOnly").checked = settings.readOnly;
 		document.getElementById("formatOnLoad").checked = settings.formatOnLoad;
+		document.getElementById("contentTypes").value = settings.contentTypes;
 		chrome.storage.sync.set({ settings: settings });
 	});
 }
@@ -54,6 +56,7 @@ function getSettings() {
 			readOnly: document.getElementById("readOnly").checked,
 			formatOnLoad: document.getElementById("formatOnLoad").checked,
 			foldingMaximumRegions: document.getElementById("foldingMaximumRegions").value,
+			contentTypes: parseContentTypes(document.getElementById("contentTypes").value).join('\n'),
 		}
 	};
 }

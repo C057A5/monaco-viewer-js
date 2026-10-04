@@ -1,14 +1,9 @@
-// TODO: add support for user-selected content types (?).
-// Do not let viewer attach to html or xml documents.
+// Content types are configured in the settings page (see defaults.js).
+// Only attach to documents the browser rendered as plain text (body>pre), never to html or xml documents;
+// other listed types are rewritten to plain text by background.js.
 
 let $monacoViewer;
-const contentTypes = [
-	'text/plain', 
-	'application/json',
-	'application/ld+json',
-	'text/javascript',
-	'text/css',
-];
+const bracketlessLanguages = ['xml', 'yaml'];
 
 chrome.runtime.onMessage.addListener((m, s, r) => {
 	//debugger;
@@ -21,7 +16,16 @@ chrome.runtime.onMessage.addListener((m, s, r) => {
 
 //TODO: attach viewer on document start and render progressively
 
-if (contentTypes.indexOf(document.contentType?.toLowerCase()) >= 0) {
+chrome.storage.sync.get('settings', data => {
+	const contentTypes = parseContentTypes(data?.settings?.contentTypes);
+	let contentType = document.contentType?.toLowerCase();
+	if (contentType?.startsWith(rewrittenTypePrefix))
+		contentType = contentTypes[contentType.substring(rewrittenTypePrefix.length)];
+	if (contentTypes.includes(contentType) && document.querySelector("body>pre"))
+		attachViewer(contentType);
+});
+
+function attachViewer(contentType) {
 
 	var stylesheet = document.createElement("link");
 	stylesheet.rel = "stylesheet";
@@ -51,32 +55,40 @@ if (contentTypes.indexOf(document.contentType?.toLowerCase()) >= 0) {
 	createButton(tlb, "expand_less<sub>6</sub>", "Fold level 6 (Ctrl+K, Ctrl+6)", ["$unfold(6)"]);
 	createButton(tlb, "expand_less<sub>7</sub>", "Fold level 7 (Ctrl+K, Ctrl+7)", ["$unfold(7)"]);
 	//createButton(tlb, "&#xEAE9;", "Fold block comments (Ctrl+K, Ctrl+9)", ["editor.unfoldAllRegions", "editor.foldLevel7"]);
-	createButton(tlb);
-	createButton(tlb, "code_blocks", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]);
-	createButton(tlb, "swap_horiz", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]);
-	createButton(tlb, "zoom_in_map", "Collapse object (Alt+J)", ["$joinSelection()"]);
-	createButton(tlb, "collapse_content", "Shrink selection (Alt + Shift + ⬅️)", ["editor.action.smartSelect.shrink"]);
-	createButton(tlb, "expand_content", "Expand selection (Alt + Shift + ➡️)", ["editor.action.smartSelect.expand"]);
-	createButton(tlb, "data_object<span class=\"sel\">select</span>", "Format object (Alt+O)", ["$formatObject()"]);
+	// Bracket/object commands, hidden for languages without bracketed objects (see bracketlessLanguages).
+	const bracketCommands = [
+		createButton(tlb),
+		createButton(tlb, "code_blocks", "Select to bracket (Ctrl+B, Ctrl+S)", ["editor.action.selectToBracket"]),
+		createButton(tlb, "swap_horiz", "Jump to matching bracket (Ctrl+Shift+\\)", ["editor.action.jumpToBracket"]),
+		createButton(tlb, "zoom_in_map", "Collapse object (Alt+J)", ["$joinSelection()"]),
+		createButton(tlb, "collapse_content", "Shrink selection (Alt + Shift + ⬅️)", ["editor.action.smartSelect.shrink"]),
+		createButton(tlb, "expand_content", "Expand selection (Alt + Shift + ➡️)", ["editor.action.smartSelect.expand"]),
+		createButton(tlb, "data_object<span class=\"sel\">select</span>", "Format object (Alt+O)", ["$formatObject()"]),
+	];
 	createButton(tlb);
 	createButton(tlb, "join", "Join lines (Ctrl+J)", ["$joinLines()"]);
 	createButton(tlb, "arrow_downward_alt", "Sort lines ascending", ["editor.action.sortLinesAscending"]);
 	createButton(tlb, "arrow_upward_alt", "Sort lines descending", ["editor.action.sortLinesDescending"]);
 	createButton(tlb, "wrap_text", "Toggle wrap (Alt+Z)", ["$toggleWrap()"]);
-	createButton(tlb);
-	createButton(tlb, "U", "Unescape (Ctrl+Alt+;)", ["$unescapeSelection()"]);
-	createButton(tlb, "E", "Escape (Ctrl+Alt+\'')", ["$escapeSelection()"]);
+	// String escape commands, hidden like the bracket commands.
+	bracketCommands.push(
+		createButton(tlb),
+		createButton(tlb, "U", "Unescape (Ctrl+Alt+;)", ["$unescapeSelection()"]),
+		createButton(tlb, "E", "Escape (Ctrl+Alt+\'')", ["$escapeSelection()"]),
+	);
 	document.body.appendChild(tlb);
 
 	window.addEventListener("message", msg => {
 		if (msg && msg.data && msg.data.ready) {
 			$monacoViewer.postMessage({
 				text: document.querySelector("body>pre").innerText,
-				contentType: document.contentType.toLowerCase(),
+				contentType: contentType,
 				extension: "." + document.location.pathname.split('.').pop(),
 				settings: localStorage.getItem("settings")
 			}, "*");
 		}
+		if (msg && msg.data && msg.data.language !== undefined)
+			bracketCommands.forEach(b => b.hidden = bracketlessLanguages.includes(msg.data.language));
 	}, false);
 
 }
@@ -90,9 +102,9 @@ function createButton(tlb, label, title, actions) {
 			$monacoViewer.postMessage({ actions: actions }, "*");
 			$monacoViewer.focus();
 		};
-		tlb.appendChild(button);
+		return tlb.appendChild(button);
 	} else {
-		tlb.appendChild(document.createElement('hr'));
+		return tlb.appendChild(document.createElement('hr'));
 	}
 }
 

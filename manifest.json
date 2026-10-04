@@ -3,10 +3,15 @@
 	"version": "0.0.0.1",
 	"manifest_version": 3,
 	"description": "An extension to view text and data files using Monaco editor.",
+	"minimum_chrome_version": "128",
 	"permissions": [
 		"storage",
-		"tabs"
+		"tabs",
+		"declarativeNetRequest"
 	],
+	"background": {
+		"service_worker": "scripts/background.js"
+	},
 	"host_permissions": [
 		"<all_urls>"
 	],
@@ -22,6 +27,7 @@
 				"<all_urls>"
 			],
 			"js": [
+				"scripts/defaults.js",
 				"scripts/viewer.js"
 			],
 			"run_at": "document_end"
